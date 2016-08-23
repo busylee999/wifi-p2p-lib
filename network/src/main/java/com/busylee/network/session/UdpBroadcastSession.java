@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
+import com.busylee.network.session.endpoint.Endpoint;
+import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.google.gson.GsonBuilder;
 
@@ -19,7 +21,8 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
     private static final String TAG = "UdpBroadcastSession";
     private final NetworkEngine networkEngine;
     private EndPointListener mEndpointListener;
-    public UdpBroadcastSession(NetworkEngine networkEngine) {
+
+    UdpBroadcastSession(NetworkEngine networkEngine) {
         this.networkEngine = networkEngine;
         this.networkEngine.addObserver(this);
     }
@@ -67,14 +70,21 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
         switch (message.getCommand()) {
             case PEER:
                 if(mEndpointListener != null) {
-                    UserEndpoint userEndpoint =
-                            new UserEndpoint(message.getId(), message.getAddressFrom());
-                    mEndpointListener.onEndpointInfoReceived(userEndpoint);
+                    Endpoint endpoint = null;
+                    if(message.getAddressFrom() != null) {
+                        endpoint = new UserEndpoint(message.getId(), message.getAddressFrom());
+                    } else if (message.getId() != null) {
+                        endpoint = new GroupEndpoint(message.getId());
+                    }
+
+                    if(endpoint != null) {
+                        mEndpointListener.onEndpointInfoReceived(endpoint);
+                    }
                 }
                 break;
             case INVITE:
                 if(mEndpointListener != null) {
-                    mEndpointListener.onPotentialSessionReceived(
+                    mEndpointListener.onSessionInvitationReceived(
                             new UserEndpoint(message.getId(), message.getAddressFrom())
                     );
                 }
@@ -83,7 +93,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
     }
 
     public interface EndPointListener {
-        void onPotentialSessionReceived(UserEndpoint inetAddress);
-        void onEndpointInfoReceived(UserEndpoint endpoint);
+        void onSessionInvitationReceived(UserEndpoint inetAddress);
+        void onEndpointInfoReceived(Endpoint endpoint);
     }
 }

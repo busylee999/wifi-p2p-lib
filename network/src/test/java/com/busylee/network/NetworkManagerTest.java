@@ -4,14 +4,16 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.message.Message;
-import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpEndpointSession;
+import com.busylee.network.session.endpoint.Endpoint;
+import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -20,6 +22,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Random;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -132,29 +136,34 @@ public class NetworkManagerTest {
 
     @Test
     public void shouldCreateAndRegisterNewSession() throws SocketException, SocketTimeoutException, UnknownHostException {
-        Message message = new Message.Builder()
-                .setCommand(Message.Command.INVITE)
-                .setAddressFrom("1.1.1.1")
-                .build();
+        Message message = TConsts.SESSION_INVITE_MESSAGE;
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         UdpEndpointSession udpEndpointSession
                 = (UdpEndpointSession) sessionManager.getSessionList().get(0);
 
-        Assert.assertEquals("1.1.1.1", udpEndpointSession.getEndpoint().getAddress().getHostAddress());
+        Assert.assertEquals(TConsts.INVITE_ENDPOINT, udpEndpointSession.getEndpoint());
     }
 
     @Test
     public void shouldNotCreateDuplicateSession() throws UnknownHostException, SocketException, SocketTimeoutException {
-        Message message = new Message.Builder()
-                .setCommand(Message.Command.INVITE)
-                .setAddressFrom("1.1.1.1")
-                .build();
+        Message message = TConsts.SESSION_INVITE_MESSAGE;
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         networkManager.createSession(new UserEndpoint("id", InetAddress.getByName("1.1.1.1")));
         Assert.assertThat("Should not duplicate sessions", sessionManager.getSessionList().size() == 1);
+    }
+
+    @Test
+    public void shouldDetectGroupPeer() throws UnknownHostException, SocketException, SocketTimeoutException {
+        Message message = TConsts.GROUP_PEER_MESSAGE;
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        networkManager.start();
+        TUtils.oneTask(receivingThread);
+        List<Endpoint> availablePeers = networkManager.getAvailablePeers();
+        Assert.assertTrue("Manager must contains group peer",
+                availablePeers.contains(TConsts.GROUP_ENDPOINT));
     }
 }

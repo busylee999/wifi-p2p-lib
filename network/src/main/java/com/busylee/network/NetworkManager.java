@@ -2,9 +2,11 @@ package com.busylee.network;
 
 import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
+import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpBroadcastSession;
 import com.busylee.network.session.UdpEndpointSession;
+import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.net.InetAddress;
@@ -19,28 +21,34 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener {
     private final NetworkEngine networkEngine;
     private final UdpBroadcastSession udpBroadcastSession;
     private final SessionManager sessionManager;
+    private final SessionFactory sessionFactory;
 
-    private List<UserEndpoint> userEndpoints = new ArrayList<>();
+    private List<Endpoint> userEndpoints = new ArrayList<>();
     private Listener netListener;
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
+        this(networkEngine, sessionManager, new SessionFactory());
+    }
+
+    public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
         this.networkEngine = networkEngine;
-        this.udpBroadcastSession = new UdpBroadcastSession(networkEngine);
+        this.udpBroadcastSession = sessionFactory.createSession(networkEngine);
         this.udpBroadcastSession.setEndpointListener(this);
         this.sessionManager = sessionManager;
     }
 
-    public List<UserEndpoint> getAvailablePeers() {
+    public List<Endpoint> getAvailablePeers() {
         return userEndpoints;
     }
 
     @Override
-    public void onPotentialSessionReceived(UserEndpoint userEndpoint) {
-        sessionManager.registerSession(new UdpEndpointSession(userEndpoint, networkEngine));
+    public void onSessionInvitationReceived(UserEndpoint userEndpoint) {
+        sessionManager.registerSession(sessionFactory.createSession(userEndpoint, networkEngine));
     }
 
     @Override
-    public void onEndpointInfoReceived(UserEndpoint endpoint) {
+    public void onEndpointInfoReceived(Endpoint endpoint) {
         if(!userEndpoints.contains(endpoint)) {
             userEndpoints.add(endpoint);
             if(netListener != null) {
@@ -52,7 +60,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener {
     public AbstractSession createSession(UserEndpoint userEndpoint) {
         EndpointSession abstractSession = sessionManager.getSessionByEndpoint(userEndpoint);
         if(abstractSession == null) {
-            abstractSession = new UdpEndpointSession(userEndpoint, networkEngine);
+            abstractSession = sessionFactory.createSession(userEndpoint, networkEngine);
             sessionManager.registerSession(abstractSession);
         }
 
