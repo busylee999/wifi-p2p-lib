@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
+import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.util.ArrayList;
@@ -20,9 +21,9 @@ public class SessionManager implements Handler.Callback {
 
     private static final String TAG = "SessionManager";
 
-    public synchronized EndpointSession getSessionByEndpoint(UserEndpoint userEndpoint) {
+    public synchronized EndpointSession getSessionByEndpoint(Endpoint endpoint) {
         for(EndpointSession abstractSession: sessionList) {
-            if(abstractSession.getEndpoint().getAddress().equals(userEndpoint.getAddress())) {
+            if(abstractSession.getEndpoint().equals(endpoint)) {
                 return abstractSession;
             }
         }
@@ -50,12 +51,14 @@ public class SessionManager implements Handler.Callback {
         this.delay = delay;
     }
 
-    public synchronized void registerSession(EndpointSession abstractSession) {
+    public synchronized boolean registerSession(EndpointSession abstractSession) {
         if(!sessionList.contains(abstractSession)) {
-            sessionList.add(abstractSession);
-        } else {
-            Log.w(TAG, "Session already in list session = " + abstractSession);
+            return sessionList.add(abstractSession);
         }
+
+        Log.w(TAG, "Session already in list session = " + abstractSession);
+
+        return false;
     }
 
     private void pingSessions() {

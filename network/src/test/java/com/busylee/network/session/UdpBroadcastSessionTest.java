@@ -4,6 +4,7 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.NetworkEngine;
+import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
@@ -61,7 +62,7 @@ public class UdpBroadcastSessionTest {
     }
 
     @Test
-    public void shouldNotifyNetworkManagerAboutPeer() throws UnknownHostException, SocketException, SocketTimeoutException {
+    public void shouldNotifyEndPointListenerAboutPeer() throws UnknownHostException, SocketException, SocketTimeoutException {
         UdpBroadcastSession.EndPointListener endPointListenerMock = mock(UdpBroadcastSession.EndPointListener.class);
         final Message message = new Message.Builder()
                 .setCommand(Message.Command.PEER)
@@ -77,7 +78,17 @@ public class UdpBroadcastSessionTest {
     }
 
     @Test
-    public void shouldNotifyNetworkManagerAboutPotencialSession() throws UnknownHostException, SocketException, SocketTimeoutException {
+    public void shouldNotifyEndPointListenerAboutGroup() throws UnknownHostException, SocketException, SocketTimeoutException {
+        UdpBroadcastSession.EndPointListener endPointListenerMock = mock(UdpBroadcastSession.EndPointListener.class);
+        final Message message = TConsts.GROUP_PEER_MESSAGE;
+        udpBroadcastSession.setEndpointListener(endPointListenerMock);
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        TUtils.oneTask(receivingThread);
+        verify(endPointListenerMock, times(1)).onEndpointInfoReceived(TConsts.GROUP_ENDPOINT);
+    }
+
+    @Test
+    public void shouldNotifyAboutPotentialSession() throws UnknownHostException, SocketException, SocketTimeoutException {
         UdpBroadcastSession.EndPointListener endPointListenerMock = mock(UdpBroadcastSession.EndPointListener.class);
         final Message message = new Message.Builder()
                 .setCommand(Message.Command.INVITE)
@@ -87,7 +98,7 @@ public class UdpBroadcastSessionTest {
         udpBroadcastSession.setEndpointListener(endPointListenerMock);
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         TUtils.oneTask(receivingThread);
-        verify(endPointListenerMock).onPotentialSessionReceived(
+        verify(endPointListenerMock).onSessionInvitationReceived(
                 new UserEndpoint("id", InetAddress.getByName("1.1.1.1"))
         );
     }

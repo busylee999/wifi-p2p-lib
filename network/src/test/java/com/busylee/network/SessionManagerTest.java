@@ -2,15 +2,16 @@ package com.busylee.network;
 
 import android.os.HandlerThread;
 import android.os.Process;
+import android.support.annotation.NonNull;
 
-import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
+import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
-import com.busylee.network.session.UdpEndpointSession;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.*;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.verify;
  * Created by busylee on 04.08.16.
  */
 @RunWith(RobolectricTestRunner.class)
-public class SessionManagerTest {
+public class SessionManagerTest extends Assert {
 
     HandlerThread pingThread;
     SessionManager sessionManager;
@@ -40,20 +41,41 @@ public class SessionManagerTest {
     }
 
     @Test
-    public void shouldInvokePingOnSession() {
-        EndpointSession abstractSession = mock(EndpointSession.class);
-        sessionManager.registerSession(abstractSession);
+    public void shouldInvokePingOnSessions() {
+        EndpointSession abstractSession1 = mock(EndpointSession.class);
+        EndpointSession abstractSession2 = mock(EndpointSession.class);
+        sessionManager.registerSession(abstractSession1);
+        sessionManager.registerSession(abstractSession2);
         TUtils.oneTask(pingThread);
-        verify(abstractSession).ping();
+        verify(abstractSession1).ping();
+        verify(abstractSession2).ping();
     }
 
     @Test
     public void shouldReturnSavedSessionByEndpoint() throws UnknownHostException {
-        UserEndpoint userEndpoint = new UserEndpoint("id", InetAddress.getByName("1.1.1.1"));
-        sessionManager.registerSession(new UdpEndpointSession(
-                userEndpoint, networkEngineMock));
-        EndpointSession sessionByEndpoint = sessionManager.getSessionByEndpoint(userEndpoint);
-        sessionByEndpoint.getEndpoint().equals(userEndpoint);
+        UserEndpoint userEndpoint = createUserEndpoint();
+        EndpointSession abstractSession = createUdpEndpointSession(userEndpoint, networkEngineMock);
+        sessionManager.registerSession(abstractSession);
+        assertEquals(abstractSession, sessionManager.getSessionByEndpoint(userEndpoint));
+    }
+
+    @NonNull
+    private EndpointSession createUdpEndpointSession(UserEndpoint userEndpoint, NetworkEngine networkEngineMock) {
+        return new SessionFactory().createSession(userEndpoint, networkEngineMock);
+    }
+
+    @NonNull
+    private UserEndpoint createUserEndpoint() throws UnknownHostException {
+        return new UserEndpoint("id", InetAddress.getByName("1.1.1.1"));
+    }
+
+    @Test
+    public void shouldNotRegisterSessionsForSameEndPoint() throws UnknownHostException {
+        UserEndpoint userEndpoint = createUserEndpoint();
+        sessionManager.registerSession(createUdpEndpointSession(userEndpoint, networkEngineMock));
+        assertEquals(false, sessionManager.registerSession(createUdpEndpointSession(userEndpoint, networkEngineMock)));
+
+        assertEquals("should skip second session", 1, sessionManager.getSessionList().size());
     }
 
 }

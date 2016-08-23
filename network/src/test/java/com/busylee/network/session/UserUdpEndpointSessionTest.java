@@ -2,8 +2,8 @@ package com.busylee.network.session;
 
 import android.os.HandlerThread;
 import android.os.Process;
+import android.support.annotation.NonNull;
 
-import com.busylee.network.Network;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.UserEndpoint;
@@ -27,16 +27,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by busylee on 04.08.16.
+ * Created by busylee on 23.08.16.
  */
 @RunWith(RobolectricTestRunner.class)
-public class UdpSessionTest {
+public class UserUdpEndpointSessionTest {
 
     NetworkEngine networkEngine;
     HandlerThread sendingThread;
     HandlerThread receivingThread;
     UdpEngine udpEngineMock;
-    UdpEndpointSession udpEndpointSession;
+    EndpointSession udpEndpointSession;
     UserEndpoint userEndpoint;
 
     AbstractSession.SessionListener sessionListenerMock;
@@ -51,9 +51,8 @@ public class UdpSessionTest {
         receivingThread
                 = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
-        udpEndpointSession = new UdpEndpointSession(userEndpoint, networkEngine);
+        udpEndpointSession = createEndpointSession();
         udpEndpointSession.setSessionListener(sessionListenerMock);
-        networkEngine.addObserver(udpEndpointSession);
         networkEngine.start();
 
     }
@@ -62,14 +61,19 @@ public class UdpSessionTest {
     public void shouldSendDirectMessage() {
         final String message = "testMessage";
         networkEngine = spy(networkEngine);
-        udpEndpointSession = new UdpEndpointSession(userEndpoint, networkEngine);
+        udpEndpointSession = createEndpointSession();
         udpEndpointSession.sendMessage(message);
         verify(networkEngine).sendMessageBroadcast(
                 "{\"addressTo\":\"1.1.1.1\"," +
-                "\"id\":\"id\"," +
-                "\"command\":\"DATA\"," +
-                "\"data\":\"testMessage\"}"
+                        "\"id\":\"id\"," +
+                        "\"command\":\"DATA\"," +
+                        "\"data\":\"testMessage\"}"
         );
+    }
+
+    @NonNull
+    private EndpointSession createEndpointSession() {
+        return new SessionFactory().createSession(userEndpoint, networkEngine);
     }
 
     @Test

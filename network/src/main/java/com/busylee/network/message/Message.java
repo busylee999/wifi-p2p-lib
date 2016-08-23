@@ -1,5 +1,7 @@
 package com.busylee.network.message;
 
+import com.busylee.network.session.endpoint.Endpoint;
+import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.net.InetAddress;
@@ -117,6 +119,11 @@ public class Message {
         private String id;
         private String data;
         private String command;
+
+        public Builder setEndpoint(GroupEndpoint endpoint) {
+            setId(endpoint.getId());
+            return this;
+        }
 
         public Builder setEndpoint(UserEndpoint endpoint) {
             setId(endpoint.getId());
