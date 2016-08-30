@@ -1,6 +1,7 @@
 package com.busylee.network.session;
 
 import com.busylee.network.message.Message;
+import com.busylee.network.session.endpoint.Endpoint;
 
 /**
  * Created by busylee on 03.08.16.
@@ -21,9 +22,10 @@ public abstract class AbstractSession {
     public interface SessionListener {
         void onSessionEstablished(AbstractSession abstractSession);
         void onSessionClosed(AbstractSession abstractSession);
-        void onNewMessage(String data);
+        void onNewMessage(Endpoint endpoint, String data);
     }
 
+    @Deprecated
     public class Handshake {
         public void onMessage(Message message) {
 

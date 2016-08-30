@@ -4,6 +4,8 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.message.Message;
+import com.busylee.network.session.AbstractSession;
+import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpEndpointSession;
 import com.busylee.network.session.endpoint.Endpoint;
@@ -23,8 +25,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.Random;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -36,32 +38,29 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class NetworkManagerTest {
 
-    NetworkManager.Listener netListenerMock;
+    NetworkManager.Listener networkListenerMock;
     NetworkManager networkManager;
     NetworkEngine networkEngine;
     HandlerThread pingThread;
     HandlerThread sendingThread;
     HandlerThread receivingThread;
     UdpEngine udpEngineMock;
-    Network.NetworkListener networkListenerMock;
     SessionManager sessionManager;
 
     @Before
     public void setup() {
         pingThread
                 = new HandlerThread("PingThreadThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        netListenerMock = mock(NetworkManager.Listener.class);
+        networkListenerMock = mock(NetworkManager.Listener.class);
         udpEngineMock = mock(UdpEngine.class);
-        networkListenerMock = mock(Network.NetworkListener.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread
                 = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
-        networkEngine.addObserver(networkListenerMock);
         sessionManager = new SessionManager(pingThread, networkEngine);
         networkManager = new NetworkManager(networkEngine, sessionManager);
-        networkManager.setNetworkListener(netListenerMock);
+        networkManager.setNetworkListener(networkListenerMock);
     }
 
     @Test
@@ -121,7 +120,7 @@ public class NetworkManagerTest {
         networkManager.start();
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
-        verify(netListenerMock).onPeerChanged();
+        verify(networkListenerMock).onPeerChanged();
     }
 
     @Test
@@ -152,7 +151,7 @@ public class NetworkManagerTest {
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         networkManager.start();
         TUtils.oneTask(receivingThread);
-        networkManager.createSession(new UserEndpoint("id", InetAddress.getByName("1.1.1.1")));
+        networkManager.createSession(new UserEndpoint(null, TConsts.ADDRESS));
         Assert.assertThat("Should not duplicate sessions", sessionManager.getSessionList().size() == 1);
     }
 
@@ -166,4 +165,55 @@ public class NetworkManagerTest {
         Assert.assertTrue("Manager must contains group peer",
                 availablePeers.contains(TConsts.GROUP_ENDPOINT));
     }
+
+    @Test
+    public void shouldCreateSessionForGroupEndpoint() throws SocketException, SocketTimeoutException {
+        Message groupPeerMessage = TConsts.GROUP_PEER_MESSAGE;
+        when(udpEngineMock.waitForNextMessage())
+                .thenReturn(groupPeerMessage.toString());
+        networkManager.start();
+        TUtils.oneTask(receivingThread);
+        Assert.assertThat("Should create and store session for group endpoint",
+                sessionManager.getSessionList().size() == 1);
+    }
+
+    @Test
+    public void shouldNotifyAboutNewMessage() throws SocketException, SocketTimeoutException {
+        Message groupPeerMessage = TConsts.GROUP_PEER_MESSAGE;
+        Message dataMessage = TConsts.GROUP_DATA_MESSAGE;
+        when(udpEngineMock.waitForNextMessage())
+                .thenReturn(groupPeerMessage.toString())
+                .thenReturn(dataMessage.toString());
+        networkManager.start();
+        TUtils.oneTask(receivingThread);
+        TUtils.oneTask(receivingThread);
+        verify(networkListenerMock)
+                .onMessageReceived(TConsts.GROUP_ENDPOINT, dataMessage.getData());
+    }
+
+    @Test
+    public void shouldSendMessage() {
+        String message = "testmessage";
+        GroupEndpoint groupEndpoint = TConsts.GROUP_ENDPOINT;
+        EndpointSession sessionSpy = mock(EndpointSession.class);
+        SessionManager sessionManagerSpy = spy(this.sessionManager);
+        networkManager = new NetworkManager(networkEngine, sessionManagerSpy);
+        when(sessionManagerSpy.getSessionByEndpoint(groupEndpoint))
+                .thenReturn(sessionSpy);
+        networkManager.sendMessage(groupEndpoint, message);
+        verify(sessionSpy).sendMessage(message);
+    }
+
+    @Test
+    public void shouldReturnFalseOnUnknownEndpoint() {
+        String message = "testmessage";
+        GroupEndpoint groupEndpoint = TConsts.GROUP_ENDPOINT;
+        SessionManager sessionManagerSpy = spy(this.sessionManager);
+        networkManager = new NetworkManager(networkEngine, sessionManagerSpy);
+        when(sessionManagerSpy.getSessionByEndpoint(groupEndpoint))
+                .thenReturn(null);
+        Assert.assertThat("Should return false if there is no known endpoint",
+                !networkManager.sendMessage(groupEndpoint, message));
+    }
+
 }

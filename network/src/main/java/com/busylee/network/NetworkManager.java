@@ -5,8 +5,8 @@ import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpBroadcastSession;
-import com.busylee.network.session.UdpEndpointSession;
 import com.busylee.network.session.endpoint.Endpoint;
+import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.net.InetAddress;
@@ -16,14 +16,14 @@ import java.util.List;
 /**
  * Created by busylee on 03.08.16.
  */
-public class NetworkManager implements UdpBroadcastSession.EndPointListener {
+public class NetworkManager implements UdpBroadcastSession.EndPointListener, AbstractSession.SessionListener {
 
     private final NetworkEngine networkEngine;
     private final UdpBroadcastSession udpBroadcastSession;
     private final SessionManager sessionManager;
     private final SessionFactory sessionFactory;
 
-    private List<Endpoint> userEndpoints = new ArrayList<>();
+    private List<Endpoint> knownEndpoint = new ArrayList<>();
     private Listener netListener;
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
@@ -39,7 +39,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener {
     }
 
     public List<Endpoint> getAvailablePeers() {
-        return userEndpoints;
+        return knownEndpoint;
     }
 
     @Override
@@ -49,18 +49,39 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener {
 
     @Override
     public void onEndpointInfoReceived(Endpoint endpoint) {
-        if(!userEndpoints.contains(endpoint)) {
-            userEndpoints.add(endpoint);
+        if(!knownEndpoint.contains(endpoint)) {
+            knownEndpoint.add(endpoint);
             if(netListener != null) {
                 netListener.onPeerChanged();
+            }
+
+            if(endpoint instanceof GroupEndpoint) {
+                createSession(((GroupEndpoint) endpoint));
             }
         }
     }
 
+//    public void sendMessage(Endpoint endpoint, String message) {
+//
+//    }
+
+    public EndpointSession createSession(Endpoint endpoint) {
+        EndpointSession abstractSession = sessionManager.getSessionByEndpoint(endpoint);
+        if(abstractSession == null) {
+            abstractSession = sessionFactory.createSession(endpoint, networkEngine);
+            abstractSession.setSessionListener(this);
+            sessionManager.registerSession(abstractSession);
+        }
+
+        return abstractSession;
+    }
+
+    @Deprecated
     public AbstractSession createSession(UserEndpoint userEndpoint) {
         EndpointSession abstractSession = sessionManager.getSessionByEndpoint(userEndpoint);
         if(abstractSession == null) {
             abstractSession = sessionFactory.createSession(userEndpoint, networkEngine);
+            abstractSession.setSessionListener(this);
             sessionManager.registerSession(abstractSession);
         }
 
@@ -85,7 +106,42 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener {
         this.netListener = netListener;
     }
 
+    @Override
+    public void onSessionEstablished(AbstractSession abstractSession) {
+        //TODO
+    }
+
+    @Override
+    public void onSessionClosed(AbstractSession abstractSession) {
+        //TODO
+    }
+
+    @Override
+    public void onNewMessage(Endpoint endpoint, String data) {
+        if(this.netListener != null) {
+            this.netListener.onMessageReceived(endpoint, data);
+        }
+    }
+
+    public boolean sendMessage(Endpoint endpoint, String message) {
+        EndpointSession session = sessionManager.getSessionByEndpoint(endpoint);
+        if(session == null && !knownEndpoint.contains(endpoint)) {
+            return false;
+        }
+
+        session = createSession(endpoint);
+
+        if(session != null) {
+            session.sendMessage(message);
+            return true;
+        }
+
+        return false;
+    }
+
     public interface Listener {
         void onPeerChanged();
+        void onMessageReceived(Endpoint groupEndpoint, String data);
     }
+
 }
