@@ -3,6 +3,7 @@ package com.busylee.network.session;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
@@ -42,11 +43,15 @@ public class SessionManager implements Handler.Callback {
     private final int delay;
     private State mState = State.Idle;
 
+    public SessionManager(NetworkEngine networkEngine) {
+        this(new HandlerThread("SessionPingThread", Process.THREAD_PRIORITY_BACKGROUND), networkEngine);
+    }
+
     public SessionManager(HandlerThread handlerThread, NetworkEngine networkEngine) {
         this(handlerThread, networkEngine, 500);
     }
 
-    public SessionManager(HandlerThread handlerThread, NetworkEngine networkEngine, int delay) {
+    SessionManager(HandlerThread handlerThread, NetworkEngine networkEngine, int delay) {
         this.handlerThread = handlerThread;
         this.delay = delay;
     }
