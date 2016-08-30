@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
+import com.busylee.network.session.UserUdpEndpointSession;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 
@@ -20,6 +21,7 @@ import java.net.UnknownHostException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by busylee on 04.08.16.
@@ -76,5 +78,14 @@ public class SessionManagerTest extends Assert {
         assertEquals(false, sessionManager.registerSession(createUdpEndpointSession(userEndpoint, networkEngineMock)));
 
         assertEquals("should skip second session", 1, sessionManager.getSessionList().size());
+    }
+
+    @Test
+    public void shouldCloseExpiredSession() {
+        UserUdpEndpointSession endpointSessionMock = mock(UserUdpEndpointSession.class);
+        when(endpointSessionMock.isExpired()).thenReturn(true);
+        sessionManager.registerSession(endpointSessionMock);
+        TUtils.oneTask(pingThread);
+        verify(endpointSessionMock).close();
     }
 }

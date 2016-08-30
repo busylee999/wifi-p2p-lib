@@ -74,11 +74,16 @@ public class SessionManager implements Handler.Callback {
     private synchronized void onPingSessions() {
         Iterator<EndpointSession> iterator = sessionList.iterator();
         while(iterator.hasNext()) {
-            AbstractSession abstractSession = iterator.next();
-            if(abstractSession.getState() == AbstractSession.EState.Closed) {
-                iterator.remove();
+            EndpointSession endpointSession = iterator.next();
+            if(endpointSession.isExpired()) {
+                endpointSession.close();
             }
-            abstractSession.ping();
+
+            if(endpointSession.getState() == AbstractSession.EState.Closed) {
+                iterator.remove();
+            } else {
+                endpointSession.ping();
+            }
         }
 
         pingSessions();
