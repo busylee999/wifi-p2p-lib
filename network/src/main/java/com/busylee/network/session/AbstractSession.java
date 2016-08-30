@@ -8,10 +8,10 @@ import com.busylee.network.session.endpoint.Endpoint;
  */
 public abstract class AbstractSession {
     enum EState {
-        Handshake,
         Established,
         Closed
     }
+
     public abstract EState getState();
     public abstract void close();
     public abstract void ping();
@@ -20,15 +20,6 @@ public abstract class AbstractSession {
     abstract void sendMessage(Message message);
 
     public interface SessionListener {
-        void onSessionEstablished(AbstractSession abstractSession);
-        void onSessionClosed(AbstractSession abstractSession);
         void onNewMessage(Endpoint endpoint, String data);
-    }
-
-    @Deprecated
-    public class Handshake {
-        public void onMessage(Message message) {
-
-        }
     }
 }

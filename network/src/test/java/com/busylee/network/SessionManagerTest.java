@@ -77,5 +77,4 @@ public class SessionManagerTest extends Assert {
 
         assertEquals("should skip second session", 1, sessionManager.getSessionList().size());
     }
-
 }

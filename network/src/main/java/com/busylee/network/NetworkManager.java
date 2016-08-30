@@ -109,16 +109,6 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     }
 
     @Override
-    public void onSessionEstablished(AbstractSession abstractSession) {
-        //TODO
-    }
-
-    @Override
-    public void onSessionClosed(AbstractSession abstractSession) {
-        //TODO
-    }
-
-    @Override
     public void onNewMessage(Endpoint endpoint, String data) {
         if(this.netListener != null) {
             this.netListener.onMessageReceived(endpoint, data);
