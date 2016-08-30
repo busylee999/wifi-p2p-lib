@@ -11,7 +11,6 @@ import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
-import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.Before;
@@ -51,7 +50,7 @@ public class NetworkManagerTest {
         pingThread
                 = new HandlerThread("PingThreadThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkListenerMock = mock(NetworkManager.Listener.class);
-        udpEngineMock = mock(UdpEngineImpl.class);
+        udpEngineMock = mock(UdpEngine.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread

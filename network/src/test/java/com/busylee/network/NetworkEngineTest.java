@@ -4,7 +4,6 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.testutils.TUtils;
-import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.After;
@@ -39,7 +38,7 @@ public class NetworkEngineTest {
 
     @Before
     public void setup() {
-        udpEngineMock = mock(UdpEngineImpl.class);
+        udpEngineMock = mock(UdpEngine.class);
         networkListenerMock = mock(Network.NetworkListener.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
