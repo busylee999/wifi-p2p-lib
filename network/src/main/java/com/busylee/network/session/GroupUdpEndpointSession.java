@@ -20,10 +20,13 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     private final GroupEndpoint groupEndpoint;
     private final Gson gson;
 
+    private long lastAction;
+
     GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine) {
         super(groupEndpoint, networkEngine);
         this.groupEndpoint = groupEndpoint;
         this.gson = new GsonBuilder().create();
+        updateLastActionTime();
     }
 
     @Override
@@ -41,6 +44,8 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
             return;
         }
 
+        updateLastActionTime();
+
         switch (message.getCommand()) {
             case Message.Command.DATA:
                 if(sessionListener != null) {
@@ -48,6 +53,10 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
                 }
                 break;
         }
+    }
+
+    private void updateLastActionTime() {
+        lastAction = System.currentTimeMillis();
     }
 
     @Override
@@ -68,5 +77,10 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     @Override
     public GroupEndpoint getEndpoint() {
         return groupEndpoint;
+    }
+
+    @Override
+    public long getLastActionTime() {
+        return lastAction;
     }
 }

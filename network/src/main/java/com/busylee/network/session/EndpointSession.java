@@ -8,4 +8,5 @@ import com.busylee.network.session.endpoint.Endpoint;
 //TODO seems deprecated?
 public abstract class EndpointSession extends AbstractSession {
     public abstract Endpoint getEndpoint();
+    public abstract long getLastActionTime();
 }
