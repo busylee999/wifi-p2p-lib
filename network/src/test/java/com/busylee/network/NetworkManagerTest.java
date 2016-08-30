@@ -24,6 +24,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import static com.busylee.network.TConsts.GROUP_PEER_ID;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -214,4 +215,15 @@ public class NetworkManagerTest {
                 !networkManager.sendMessage(groupEndpoint, message));
     }
 
+    @Test
+    public void shouldSendPeerInfo() throws SocketException {
+        Message message = new Message.Builder()
+                .setCommand(Message.Command.PEER)
+                .setId(String.valueOf(GROUP_PEER_ID))
+                .build();
+        networkManager.start();
+        networkManager.createGroup(String.valueOf(GROUP_PEER_ID));
+        TUtils.oneTask(sendingThread);
+        verify(udpEngineMock).sendMessage(message.toString());
+    }
 }

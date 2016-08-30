@@ -121,7 +121,11 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
                 final String message = udpEngine.waitForNextMessage();
                 Log.d(TAG, "onWaitMessage() message = " + message);
                 startWaiting();
-                postToListener(message);
+                if(message != null) {
+                    postToListener(message);
+                } else {
+                    Log.w(TAG, "onWaitMessage() message is null");
+                }
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 Log.d(TAG, "onWaitMessage() timeout waiting message");

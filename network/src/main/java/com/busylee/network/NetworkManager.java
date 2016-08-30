@@ -1,5 +1,6 @@
 package com.busylee.network;
 
+import com.busylee.network.message.Message;
 import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
@@ -12,6 +13,7 @@ import com.busylee.network.session.endpoint.UserEndpoint;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by busylee on 03.08.16.
@@ -137,6 +139,21 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         }
 
         return false;
+    }
+
+    public String createGroup() {
+        String peerId = String.valueOf(new Random().nextLong());
+        createGroup(peerId);
+        return peerId;
+    }
+
+    void createGroup(String peerId) {
+        Message message = new Message.Builder()
+                .setCommand(Message.Command.PEER)
+                .setId(String.valueOf(peerId))
+                .build();
+
+        udpBroadcastSession.sendMessage(message);
     }
 
     public interface Listener {
