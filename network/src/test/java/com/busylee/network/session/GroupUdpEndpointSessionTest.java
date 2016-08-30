@@ -8,6 +8,7 @@ import com.busylee.network.session.endpoint.GroupEndpoint;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -86,4 +87,5 @@ public class GroupUdpEndpointSessionTest {
                 new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, 0);
         Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
+
 }
