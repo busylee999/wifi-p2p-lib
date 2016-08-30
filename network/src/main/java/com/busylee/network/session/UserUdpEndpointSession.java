@@ -50,7 +50,7 @@ public class UserUdpEndpointSession extends UdpEndpointSession {
         switch (message.getCommand()) {
             case Message.Command.DATA:
                 if(sessionListener != null) {
-                    sessionListener.onNewMessage(message.getData());
+                    sessionListener.onNewMessage(endpoint, message.getData());
                 }
                 break;
         }

@@ -44,7 +44,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
         switch (message.getCommand()) {
             case Message.Command.DATA:
                 if(sessionListener != null) {
-                    sessionListener.onNewMessage(message.getData());
+                    sessionListener.onNewMessage(groupEndpoint, message.getData());
                 }
                 break;
         }

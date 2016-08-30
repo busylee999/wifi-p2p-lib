@@ -86,7 +86,7 @@ public class UserUdpEndpointSessionTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         TUtils.oneTask(receivingThread);
-        verify(sessionListenerMock).onNewMessage(data);
+        verify(sessionListenerMock).onNewMessage(userEndpoint, data);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class UserUdpEndpointSessionTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         TUtils.oneTask(receivingThread);
-        verify(sessionListenerMock, never()).onNewMessage(data);
+        verify(sessionListenerMock, never()).onNewMessage(userEndpoint, data);
     }
 
     @Test
@@ -113,6 +113,6 @@ public class UserUdpEndpointSessionTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         TUtils.oneTask(receivingThread);
-        verify(sessionListenerMock, never()).onNewMessage(data);
+        verify(sessionListenerMock, never()).onNewMessage(userEndpoint, data);
     }
 }

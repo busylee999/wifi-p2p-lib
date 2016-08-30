@@ -1,6 +1,7 @@
 package com.busylee.network.session;
 
 import com.busylee.network.NetworkEngine;
+import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
@@ -9,6 +10,14 @@ import com.busylee.network.session.endpoint.UserEndpoint;
  */
 
 public class SessionFactory {
+
+    public EndpointSession createSession(Endpoint endpoint, NetworkEngine networkEngine) {
+        if(endpoint instanceof GroupEndpoint) {
+            return createSession((GroupEndpoint) endpoint, networkEngine);
+        } else {
+            return createSession((GroupEndpoint) endpoint, networkEngine);
+        }
+    }
 
     public UdpBroadcastSession createSession(NetworkEngine networkEngine) {
         return new UdpBroadcastSession(networkEngine);

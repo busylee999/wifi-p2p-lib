@@ -102,4 +102,5 @@ public class UdpBroadcastSessionTest {
                 new UserEndpoint("id", InetAddress.getByName("1.1.1.1"))
         );
     }
+
 }

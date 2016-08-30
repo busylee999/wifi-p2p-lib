@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
+import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 
 import org.junit.Before;
@@ -17,6 +18,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -60,7 +62,7 @@ public class GroupUdpEndpointSessionTest {
     @Test
     public void shouldNotifyListenerOnNewDataMessage() throws UnknownHostException, SocketException, SocketTimeoutException {
         udpEndpointSession.update(null, TConsts.GROUP_DATA_MESSAGE.toString());
-        verify(sessionListenerMock).onNewMessage(TConsts.GROUP_MESSAGE_TEXT);
+        verify(sessionListenerMock).onNewMessage(groupEndpoint, TConsts.GROUP_MESSAGE_TEXT);
     }
 
     @Test
@@ -71,7 +73,7 @@ public class GroupUdpEndpointSessionTest {
                 .setData(data)
                 .build();
         udpEndpointSession.update(null, message.toString());
-        verify(sessionListenerMock, never()).onNewMessage(anyString());
+        verify(sessionListenerMock, never()).onNewMessage((Endpoint) any(), anyString());
     }
 
 }
