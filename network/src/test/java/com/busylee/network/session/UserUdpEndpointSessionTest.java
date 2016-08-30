@@ -123,14 +123,16 @@ public class UserUdpEndpointSessionTest {
     }
 
     @Test
-    public void shouldManageLastActivityTimeStamp() throws UnknownHostException {
-        String data = "tratata";
-        Message message = createIncomingMessage(data);
+    public void shouldNotExpired() {
+        Message message = TConsts.GROUP_DATA_MESSAGE;
         udpEndpointSession.update(null, message.toString());
-        long lastActionTime = udpEndpointSession.getLastActionTime();
-        Assert.assertTrue("Should return any time", lastActionTime > 0);
-        udpEndpointSession.update(null, message.toString());
-        Assert.assertTrue("Second time should be after or the same",
-                lastActionTime <= udpEndpointSession.getLastActionTime());
+        Assert.assertTrue("Should not be expired", !udpEndpointSession.isExpired());
+    }
+
+    @Test
+    public void shouldExpiredSimultaneously() {
+        udpEndpointSession =
+                new UserUdpEndpointSession(userEndpoint, networkEngine, 0);
+        Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
 }

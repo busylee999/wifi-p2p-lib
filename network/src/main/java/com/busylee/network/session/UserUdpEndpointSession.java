@@ -18,14 +18,22 @@ import java.util.Observable;
 public class UserUdpEndpointSession extends UdpEndpointSession {
 
     private static final String TAG = "UdpEndpointSession";
+    private static final int DEFAULT_EXPIRED_BOUND = 5 * 1000; //5 sec
+
     private final UserEndpoint endpoint;
+    private final long expiredBound;
     private final Gson gson;
 
     private long lastActionTime;
 
-    public UserUdpEndpointSession(UserEndpoint endpoint, NetworkEngine networkEngine) {
+    UserUdpEndpointSession(UserEndpoint endpoint, NetworkEngine networkEngine) {
+        this(endpoint, networkEngine, DEFAULT_EXPIRED_BOUND);
+    }
+
+    UserUdpEndpointSession(UserEndpoint endpoint, NetworkEngine networkEngine, long expiredBound) {
         super(endpoint, networkEngine);
         this.endpoint = endpoint;
+        this.expiredBound = expiredBound;
         this.gson = new GsonBuilder().create();
         updateLastActionTime();
     }
@@ -72,8 +80,8 @@ public class UserUdpEndpointSession extends UdpEndpointSession {
     }
 
     @Override
-    public long getLastActionTime() {
-        return lastActionTime;
+    public boolean isExpired() {
+        return lastActionTime  + expiredBound <= System.currentTimeMillis() ;
     }
 
     private void updateLastActionTime() {
