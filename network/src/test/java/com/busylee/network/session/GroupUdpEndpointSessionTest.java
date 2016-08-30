@@ -1,12 +1,12 @@
 package com.busylee.network.session;
 
-import com.busylee.network.Assert;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,5 +71,17 @@ public class GroupUdpEndpointSessionTest {
                 .build();
         udpEndpointSession.update(null, message.toString());
         verify(sessionListenerMock, never()).onNewMessage((Endpoint) any(), anyString());
+    }
+
+    @Test
+    public void shouldManageLastActivityTimeStamp() {
+        Message message = TConsts.GROUP_DATA_MESSAGE;
+        udpEndpointSession.update(null, message.toString());
+        long lastActionTime = udpEndpointSession.getLastActionTime();
+        Assert.assertTrue("Should return any time", lastActionTime > 0);
+        udpEndpointSession.update(null, message.toString());
+        Assert.assertTrue("Second time should be after or the same",
+                lastActionTime <= udpEndpointSession.getLastActionTime());
+
     }
 }
