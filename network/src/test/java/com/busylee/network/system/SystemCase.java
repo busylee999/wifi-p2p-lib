@@ -87,9 +87,10 @@ public class SystemCase {
         networkManager2.createGroup();
         loop(100);
         Endpoint endpoint = networkManager1.getAvailablePeers().get(0);
-        networkManager1.sendMessage(endpoint, "hellow");
+        String testMessage = "test message";
+        networkManager1.sendMessage(endpoint, testMessage);
         loop(100);
-        verify(networkListenerMock).onMessageReceived(endpoint, "hellow");
+        verify(networkListenerMock).onMessageReceived(endpoint, testMessage);
 
     }
     
