@@ -74,14 +74,16 @@ public class GroupUdpEndpointSessionTest {
     }
 
     @Test
-    public void shouldManageLastActivityTimeStamp() {
+    public void shouldNotExpired() {
         Message message = TConsts.GROUP_DATA_MESSAGE;
         udpEndpointSession.update(null, message.toString());
-        long lastActionTime = udpEndpointSession.getLastActionTime();
-        Assert.assertTrue("Should return any time", lastActionTime > 0);
-        udpEndpointSession.update(null, message.toString());
-        Assert.assertTrue("Second time should be after or the same",
-                lastActionTime <= udpEndpointSession.getLastActionTime());
+        Assert.assertTrue("Should not be expired", !udpEndpointSession.isExpired());
+    }
 
+    @Test
+    public void shouldExpiredSimultaneously() {
+        udpEndpointSession =
+                new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, 0);
+        Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
 }
