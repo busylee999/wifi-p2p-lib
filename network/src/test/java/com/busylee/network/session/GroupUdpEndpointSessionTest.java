@@ -1,7 +1,6 @@
 package com.busylee.network.session;
 
-import android.support.annotation.NonNull;
-
+import com.busylee.network.Assert;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
@@ -9,7 +8,6 @@ import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -22,7 +20,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -75,5 +72,4 @@ public class GroupUdpEndpointSessionTest {
         udpEndpointSession.update(null, message.toString());
         verify(sessionListenerMock, never()).onNewMessage((Endpoint) any(), anyString());
     }
-
 }
