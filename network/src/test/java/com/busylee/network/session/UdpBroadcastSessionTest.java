@@ -8,6 +8,7 @@ import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class UdpBroadcastSessionTest {
 
     @Before
     public void setup() {
-        udpEngineMock = mock(UdpEngine.class);
+        udpEngineMock = mock(UdpEngineImpl.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread

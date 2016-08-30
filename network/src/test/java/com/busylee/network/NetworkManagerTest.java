@@ -4,7 +4,6 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.message.Message;
-import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpEndpointSession;
@@ -12,10 +11,10 @@ import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -52,7 +51,7 @@ public class NetworkManagerTest {
         pingThread
                 = new HandlerThread("PingThreadThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkListenerMock = mock(NetworkManager.Listener.class);
-        udpEngineMock = mock(UdpEngine.class);
+        udpEngineMock = mock(UdpEngineImpl.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread

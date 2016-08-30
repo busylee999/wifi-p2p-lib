@@ -4,9 +4,9 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.testutils.TUtils;
+import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class PeerNetworkEngineTest {
 
     @Before
     public void setup() {
-        udpEngineMock = mock(UdpEngine.class);
+        udpEngineMock = mock(UdpEngineImpl.class);
         networkListenerMock = mock(Network.NetworkListener.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);

@@ -8,6 +8,7 @@ import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.busylee.network.udp.UdpEngineImpl;
 import com.busylee.network.udp.UdpEngine;
 
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class UserUdpEndpointSessionTest {
     public void setup() throws UnknownHostException {
         sessionListenerMock = mock(AbstractSession.SessionListener.class);
         userEndpoint = new UserEndpoint("id", InetAddress.getByName("1.1.1.1"));
-        udpEngineMock = mock(UdpEngine.class);
+        udpEngineMock = mock(UdpEngineImpl.class);
         sendingThread
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread
