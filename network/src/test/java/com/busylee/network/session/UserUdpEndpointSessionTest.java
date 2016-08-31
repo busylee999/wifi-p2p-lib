@@ -135,4 +135,11 @@ public class UserUdpEndpointSessionTest {
                 new UserUdpEndpointSession(userEndpoint, networkEngine, 0);
         Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
+
+    @Test
+    public void shouldGoToClosedState() {
+        udpEndpointSession.close();
+        Assert.assertEquals("Should go to correct closed state after close",
+                EndpointSession.EState.Closed, udpEndpointSession.getState());
+    }
 }

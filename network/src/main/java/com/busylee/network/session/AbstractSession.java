@@ -7,7 +7,7 @@ import com.busylee.network.session.endpoint.Endpoint;
  * Created by busylee on 03.08.16.
  */
 public abstract class AbstractSession {
-    enum EState {
+    public enum EState {
         Established,
         Closed
     }
