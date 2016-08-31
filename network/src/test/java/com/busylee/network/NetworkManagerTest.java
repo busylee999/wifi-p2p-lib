@@ -59,7 +59,7 @@ public class NetworkManagerTest {
         networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
         sessionManager = new SessionManager(pingThread, networkEngine);
         networkManager = new NetworkManager(networkEngine, sessionManager);
-        networkManager.setNetworkListener(networkListenerMock);
+        networkManager.registerNetworkListener(networkListenerMock);
     }
 
     @Test

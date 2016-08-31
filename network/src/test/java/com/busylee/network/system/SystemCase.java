@@ -23,8 +23,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -65,7 +63,7 @@ public class SystemCase {
                 sessionThread2,
                 sendingThread2,
                 receivingThread2, fakeDisturbingTool, "1.1.1.2");
-        networkManager2.setNetworkListener(networkListenerMock);
+        networkManager2.registerNetworkListener(networkListenerMock);
     }
 
     private NetworkManager createNetworkManager(HandlerThread sessionThread,

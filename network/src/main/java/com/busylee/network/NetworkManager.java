@@ -12,6 +12,7 @@ import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -26,7 +27,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     private final SessionFactory sessionFactory;
 
     private List<Endpoint> knownEndpoint = new ArrayList<>();
-    private Listener netListener;
+    private List<Listener> listeners = new LinkedList<>();
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
         this(networkEngine, sessionManager, new SessionFactory());
@@ -53,8 +54,12 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     public void onEndpointInfoReceived(Endpoint endpoint) {
         if(!knownEndpoint.contains(endpoint)) {
             knownEndpoint.add(endpoint);
-            if(netListener != null) {
-                netListener.onPeerChanged();
+            if(listeners.size() > 0) {
+                synchronized (listeners) {
+                    for(Listener listener : listeners) {
+                        listener.onPeerChanged();
+                    }
+                }
             }
 
             if(endpoint instanceof GroupEndpoint) {
@@ -62,10 +67,6 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
             }
         }
     }
-
-//    public void sendMessage(Endpoint endpoint, String message) {
-//
-//    }
 
     public EndpointSession createSession(Endpoint endpoint) {
         EndpointSession abstractSession = sessionManager.getSessionByEndpoint(endpoint);
@@ -104,14 +105,26 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         return networkEngine.getIpAddress();
     }
 
-    public void setNetworkListener(Listener netListener) {
-        this.netListener = netListener;
+    public void registerNetworkListener(Listener netListener) {
+        if(netListener != null) {
+            this.listeners.add(netListener);
+        }
+    }
+
+    public void unregisterNetworkListener(Listener netListener) {
+        if(netListener != null) {
+            this.listeners.remove(netListener);
+        }
     }
 
     @Override
     public void onNewMessage(Endpoint endpoint, String data) {
-        if(this.netListener != null) {
-            this.netListener.onMessageReceived(endpoint, data);
+        if(listeners.size() > 0) {
+            synchronized (listeners) {
+                for(Listener listener : listeners) {
+                    listener.onMessageReceived(endpoint, data);
+                }
+            }
         }
     }
 
