@@ -23,6 +23,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,12 +50,12 @@ public class SystemCase {
     @Before
     public void setUp() throws Exception {
         FakeDisturbingTool fakeDisturbingTool = new FakeDisturbingTool();
-        sessionThread1 = new HandlerThread("SessionThread1", Process.THREAD_PRIORITY_BACKGROUND);
-        sessionThread2 = new HandlerThread("SessionThread2", Process.THREAD_PRIORITY_BACKGROUND);
-        sendingThread1 = new HandlerThread("sendingThread1", Process.THREAD_PRIORITY_BACKGROUND);
-        sendingThread2 = new HandlerThread("sendingThread2", Process.THREAD_PRIORITY_BACKGROUND);
-        receivingThread1 = new HandlerThread("receivingThread1", Process.THREAD_PRIORITY_BACKGROUND);
-        receivingThread2 = new HandlerThread("receivingThread2", Process.THREAD_PRIORITY_BACKGROUND);
+        sessionThread1 = new HandlerThread("SessionThread1", Process.THREAD_PRIORITY_DEFAULT);
+        sessionThread2 = new HandlerThread("SessionThread2", Process.THREAD_PRIORITY_DEFAULT);
+        sendingThread1 = new HandlerThread("sendingThread1", Process.THREAD_PRIORITY_DEFAULT);
+        sendingThread2 = new HandlerThread("sendingThread2", Process.THREAD_PRIORITY_DEFAULT);
+        receivingThread1 = new HandlerThread("receivingThread1", Process.THREAD_PRIORITY_DEFAULT);
+        receivingThread2 = new HandlerThread("receivingThread2", Process.THREAD_PRIORITY_DEFAULT);
         networkManager1 = createNetworkManager(
                 sessionThread1,
                 sendingThread1,
@@ -73,7 +76,7 @@ public class SystemCase {
                                                 String address) throws UnknownHostException {
         UdpEngineFakeImpl udpEngineFake = new UdpEngineFakeImpl(tool, InetAddress.getByName(address));
         NetworkEngine networkEngine = new NetworkEngine(udpEngineFake, sendingThread, receivingThread);
-        SessionManager sessionManager = new SessionManager(sessionThread, networkEngine);
+        SessionManager sessionManager = new SessionManager(networkEngine, sessionThread);
         return new NetworkManager(networkEngine, sessionManager);
     }
 
@@ -83,16 +86,16 @@ public class SystemCase {
         networkManager2.start();
 
         networkManager2.createGroup();
-        loop(100);
+        loop(10);
         Endpoint endpoint = networkManager1.getAvailableEndpoints().get(0);
         String testMessage = "test message";
         networkManager1.sendMessage(endpoint, testMessage);
-        loop(100);
+        loop(10);
         verify(networkListenerMock).onMessageReceived(endpoint, testMessage);
 
     }
     
-    void loop(int count) {
+    void loop(int count) throws InterruptedException {
         for(int i = 0 ; i < count ; i++) {
             TUtils.oneTask(sessionThread1);
             TUtils.oneTask(sessionThread2);
@@ -100,7 +103,6 @@ public class SystemCase {
             TUtils.oneTask(sendingThread2);
             TUtils.oneTask(receivingThread1);
             TUtils.oneTask(receivingThread2);
-
         }
     }
 
@@ -123,21 +125,39 @@ public class SystemCase {
         final Queue<String> messagesQueue;
         final FakeDisturbingTool fake;
         final InetAddress address;
+        final Lock lock;
+        private final Condition condition;
 
         UdpEngineFakeImpl(FakeDisturbingTool fake, InetAddress address) {
             messagesQueue = new ArrayDeque<>();
             this.address = address;
             this.fake = fake;
             this.fake.register(this);
+            lock = new ReentrantLock();
+            condition = lock.newCondition();
         }
 
-        public synchronized void addToQueue(String message) {
+        public void addToQueue(String message) {
             messagesQueue.add(message);
+//            lock.lock();
+//            condition.signalAll();
+//            lock.unlock();
         }
 
         @Override
-        public synchronized String waitForNextMessage() throws SocketException, SocketTimeoutException {
-            return messagesQueue.poll();
+        public String waitForNextMessage() throws SocketException, SocketTimeoutException {
+//            String poll = messagesQueue.poll();
+//            while (poll == null) {
+//                try {
+//                    condition.await();
+                    return messagesQueue.poll();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    lock.unlock();
+//                }
+//            }
+//            return null;
         }
 
         @Override

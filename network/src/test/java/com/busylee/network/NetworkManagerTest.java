@@ -57,7 +57,7 @@ public class NetworkManagerTest {
         receivingThread
                 = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
-        sessionManager = new SessionManager(pingThread, networkEngine);
+        sessionManager = new SessionManager(networkEngine, pingThread);
         networkManager = new NetworkManager(networkEngine, sessionManager);
         networkManager.registerNetworkListener(networkListenerMock);
     }

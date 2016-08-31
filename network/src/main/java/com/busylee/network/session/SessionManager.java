@@ -45,14 +45,14 @@ public class SessionManager implements Handler.Callback {
     private State mState = State.Idle;
 
     public SessionManager(NetworkEngine networkEngine) {
-        this(new HandlerThread("SessionPingThread", Process.THREAD_PRIORITY_BACKGROUND), networkEngine);
+        this(networkEngine, new HandlerThread("SessionPingThread", Process.THREAD_PRIORITY_BACKGROUND));
     }
 
-    public SessionManager(HandlerThread handlerThread, NetworkEngine networkEngine) {
-        this(handlerThread, networkEngine, 500);
+    public SessionManager(NetworkEngine networkEngine, HandlerThread handlerThread) {
+        this(networkEngine, handlerThread, 500);
     }
 
-    SessionManager(HandlerThread handlerThread, NetworkEngine networkEngine, int delay) {
+    SessionManager(NetworkEngine networkEngine, HandlerThread handlerThread, int delay) {
         this.handlerThread = handlerThread;
         this.delay = delay;
     }

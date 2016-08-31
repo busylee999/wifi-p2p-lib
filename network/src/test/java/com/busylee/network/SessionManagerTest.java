@@ -39,7 +39,7 @@ public class SessionManagerTest extends Assert {
         pingThread
                 = new HandlerThread("PingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
 
-        sessionManager = new SessionManager(pingThread, networkEngineMock);
+        sessionManager = new SessionManager(networkEngineMock, pingThread);
         sessionManager.start();
     }
 
