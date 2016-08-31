@@ -144,13 +144,14 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         return false;
     }
 
+    @Deprecated
     public String createGroup() {
         String peerId = String.valueOf(new Random().nextLong());
         createGroup(peerId);
         return peerId;
     }
 
-    void createGroup(String peerId) {
+    public void createGroup(String peerId) {
         Message message = new Message.Builder()
                 .setCommand(Message.Command.PEER)
                 .setId(String.valueOf(peerId))
