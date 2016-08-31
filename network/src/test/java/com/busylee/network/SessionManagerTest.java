@@ -4,6 +4,7 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.NonNull;
 
+import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
@@ -81,11 +82,14 @@ public class SessionManagerTest extends Assert {
     }
 
     @Test
-    public void shouldCloseExpiredSession() {
+    public void shouldCloseAndRemoveExpiredSession() {
         UserUdpEndpointSession endpointSessionMock = mock(UserUdpEndpointSession.class);
         when(endpointSessionMock.isExpired()).thenReturn(true);
+        when(endpointSessionMock.getState()).thenReturn(AbstractSession.EState.Closed);
         sessionManager.registerSession(endpointSessionMock);
         TUtils.oneTask(pingThread);
         verify(endpointSessionMock).close();
+        Assert.assertTrue("Should remove session from active session list",
+                sessionManager.getSessionList().size() == 0);
     }
 }

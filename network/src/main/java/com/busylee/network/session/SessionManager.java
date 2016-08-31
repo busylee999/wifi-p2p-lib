@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * Created by busylee on 04.08.16.
+ * TODO should notify listener about session expiring
  */
 public class SessionManager implements Handler.Callback {
 
