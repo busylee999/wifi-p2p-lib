@@ -91,6 +91,5 @@ public class SessionManagerTest extends Assert {
         verify(endpointSessionMock).close();
         Assert.assertTrue("Should remove session from active session list",
                 sessionManager.getSessionList().size() == 0);
-        
     }
 }
