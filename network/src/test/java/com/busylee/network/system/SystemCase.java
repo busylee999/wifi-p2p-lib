@@ -84,7 +84,7 @@ public class SystemCase {
 
         networkManager2.createGroup();
         loop(100);
-        Endpoint endpoint = networkManager1.getAvailablePeers().get(0);
+        Endpoint endpoint = networkManager1.getAvailableEndpoints().get(0);
         String testMessage = "test message";
         networkManager1.sendMessage(endpoint, testMessage);
         loop(100);

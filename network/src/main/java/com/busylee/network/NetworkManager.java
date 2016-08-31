@@ -41,7 +41,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         this.sessionManager = sessionManager;
     }
 
-    public List<Endpoint> getAvailablePeers() {
+    public List<Endpoint> getAvailableEndpoints() {
         return knownEndpoint;
     }
 

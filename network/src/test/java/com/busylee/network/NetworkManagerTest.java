@@ -76,7 +76,7 @@ public class NetworkManagerTest {
         networkManager.start();
         TUtils.oneTask(receivingThread);
         Assert.assertThat("Should contain peer",
-                networkManager.getAvailablePeers().contains(userEndpoint));
+                networkManager.getAvailableEndpoints().contains(userEndpoint));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class NetworkManagerTest {
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
         Assert.assertThat("Should contain only one peer",
-                networkManager.getAvailablePeers().size() == 1);
+                networkManager.getAvailableEndpoints().size() == 1);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class NetworkManagerTest {
         when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
         networkManager.start();
         TUtils.oneTask(receivingThread);
-        List<Endpoint> availablePeers = networkManager.getAvailablePeers();
+        List<Endpoint> availablePeers = networkManager.getAvailableEndpoints();
         Assert.assertTrue("Manager must contains group peer",
                 availablePeers.contains(TConsts.GROUP_ENDPOINT));
     }
