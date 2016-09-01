@@ -72,7 +72,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     }
 
     @Override
-    public void sendMessage(String stringMessage) {
+    public void sendDataMessage(String stringMessage) {
         Message message = new Message.Builder()
                 .setId(groupEndpoint.getId())
                 .setCommand(Message.Command.DATA)

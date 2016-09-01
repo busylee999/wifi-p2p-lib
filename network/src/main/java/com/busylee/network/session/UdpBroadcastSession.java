@@ -33,8 +33,13 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
     }
 
     @Override
-    public void sendMessage(String message) {
-        //TODO
+    public void sendDataMessage(String messageBody) {
+        //TODO think about necessary of setting address from here
+        Message message = new Message.Builder()
+                .setCommand(DATA)
+                .setData(messageBody)
+                .build();
+        networkEngine.sendMessageBroadcast(message.toString());
     }
 
     @Override
@@ -42,6 +47,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     }
 
+    @Override
     public void sendMessage(Message message) {
         networkEngine.sendMessageBroadcast(message.toString());
     }

@@ -64,7 +64,7 @@ public class UserUdpEndpointSessionTest {
         final String message = "testMessage";
         networkEngine = spy(networkEngine);
         udpEndpointSession = createEndpointSession();
-        udpEndpointSession.sendMessage(message);
+        udpEndpointSession.sendDataMessage(message);
         verify(networkEngine).sendMessageBroadcast(
                 "{\"addressTo\":\"1.1.1.1\"," +
                         "\"id\":\"id\"," +

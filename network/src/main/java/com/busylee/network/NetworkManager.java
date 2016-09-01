@@ -137,7 +137,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         session = createSession(endpoint);
 
         if(session != null) {
-            session.sendMessage(message);
+            session.sendDataMessage(message);
             return true;
         }
 

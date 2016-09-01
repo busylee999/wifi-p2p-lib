@@ -8,7 +8,6 @@ import com.busylee.network.session.endpoint.GroupEndpoint;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -49,7 +48,7 @@ public class GroupUdpEndpointSessionTest {
     @Test
     public void shouldSendDirectMessage() {
         final String message = "testMessage";
-        udpEndpointSession.sendMessage(message);
+        udpEndpointSession.sendDataMessage(message);
         verify(networkEngineMock).sendMessageBroadcast(
                 "{\"id\":\"" + TConsts.GROUP_PEER_ID + "\"," +
                         "\"command\":\"DATA\"," +

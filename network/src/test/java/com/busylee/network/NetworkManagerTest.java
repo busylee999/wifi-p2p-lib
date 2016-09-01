@@ -200,7 +200,7 @@ public class NetworkManagerTest {
         when(sessionManagerSpy.getSessionByEndpoint(groupEndpoint))
                 .thenReturn(sessionSpy);
         networkManager.sendMessage(groupEndpoint, message);
-        verify(sessionSpy).sendMessage(message);
+        verify(sessionSpy).sendDataMessage(message);
     }
 
     @Test

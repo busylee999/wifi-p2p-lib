@@ -15,7 +15,7 @@ public abstract class AbstractSession {
     public abstract EState getState();
     public abstract void close();
     public abstract void ping();
-    public abstract void sendMessage(String message);
+    public abstract void sendDataMessage(String message);
     public abstract void setSessionListener(SessionListener sessionListener);
     abstract void sendMessage(Message message);
 

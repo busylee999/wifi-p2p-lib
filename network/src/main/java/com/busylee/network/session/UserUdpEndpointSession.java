@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
-import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -89,7 +88,7 @@ public class UserUdpEndpointSession extends UdpEndpointSession {
     }
 
     @Override
-    public void sendMessage(String messageString) {
+    public void sendDataMessage(String messageString) {
         Message message = new Message.Builder()
                 .setCommand(Message.Command.DATA)
                 .setEndpoint(getEndpoint())
