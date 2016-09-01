@@ -86,7 +86,7 @@ public class UserUdpEndpointSessionTest {
                 .setCommand(Message.Command.DATA)
                 .setData(data)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(sessionListenerMock).onNewMessage(userEndpoint, data);
     }
@@ -99,7 +99,7 @@ public class UserUdpEndpointSessionTest {
                 .setCommand(Message.Command.DATA)
                 .setData(data)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(sessionListenerMock, never()).onNewMessage(userEndpoint, data);
     }
@@ -108,7 +108,7 @@ public class UserUdpEndpointSessionTest {
     public void shouldIgnoreMessagesFromAnotherIdsWithExistingOne() throws UnknownHostException, SocketException, SocketTimeoutException {
         String data = "tratata";
         Message message = createIncomingMessage(data);
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(sessionListenerMock, never()).onNewMessage(userEndpoint, data);
     }

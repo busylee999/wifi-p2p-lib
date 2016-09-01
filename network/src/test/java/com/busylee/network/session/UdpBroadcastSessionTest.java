@@ -58,7 +58,7 @@ public class UdpBroadcastSessionTest {
                 .build();
         udpBroadcastSession.sendMessage(message);
         TUtils.oneTask(sendingThread);
-        verify(udpEngineMock, times(1)).sendMessage(message.toString());
+        verify(udpEngineMock, times(1)).sendMessage(message.toString().getBytes());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class UdpBroadcastSessionTest {
                 .setAddressFrom("1.1.1.1")
                 .build();
         udpBroadcastSession.setEndpointListener(endPointListenerMock);
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(endPointListenerMock, times(1)).onEndpointInfoReceived(
                 new UserEndpoint("id", InetAddress.getByName("1.1.1.1"))
@@ -82,7 +82,7 @@ public class UdpBroadcastSessionTest {
         UdpBroadcastSession.EndPointListener endPointListenerMock = mock(UdpBroadcastSession.EndPointListener.class);
         final Message message = TConsts.GROUP_PEER_MESSAGE;
         udpBroadcastSession.setEndpointListener(endPointListenerMock);
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(endPointListenerMock, times(1)).onEndpointInfoReceived(TConsts.GROUP_ENDPOINT);
     }
@@ -96,7 +96,7 @@ public class UdpBroadcastSessionTest {
                 .setAddressFrom("1.1.1.1")
                 .build();
         udpBroadcastSession.setEndpointListener(endPointListenerMock);
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         TUtils.oneTask(receivingThread);
         verify(endPointListenerMock).onSessionInvitationReceived(
                 new UserEndpoint("id", InetAddress.getByName("1.1.1.1"))

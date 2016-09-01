@@ -34,7 +34,7 @@ public class UdpEngineImpl implements UdpEngine {
     }
 
     @Override
-    public String waitForNextMessage() throws SocketException, SocketTimeoutException {
+    public byte[] waitForNextMessage() throws SocketException, SocketTimeoutException {
         try {
             DatagramSocket socket = getSocket();
             return tryListenForString(socket);
@@ -45,11 +45,11 @@ public class UdpEngineImpl implements UdpEngine {
         } catch (IOException e) {
             Log.e(TAG, "Input/Output exception occured", e);
         }
-        return "";
+        return null;
     }
 
     @Override
-    public boolean sendMessage(String message) throws SocketException {
+    public boolean sendMessage(byte[] message) throws SocketException {
         Log.d(TAG, "Sending message " + message);
         try {
             DatagramSocket socket = getSocket();
@@ -59,7 +59,7 @@ public class UdpEngineImpl implements UdpEngine {
             if(broadcastAddress == null)
                 throw new SocketException("broadcast address is null");
 
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(),
+            DatagramPacket packet = new DatagramPacket(message, message.length,
                     broadcastAddress, DISCOVERY_PORT);
             socket.send(packet);
             return true;
@@ -86,11 +86,11 @@ public class UdpEngineImpl implements UdpEngine {
         return mSocket;
     }
 
-    private String tryListenForString(DatagramSocket socket) throws IOException {
+    private byte[] tryListenForString(DatagramSocket socket) throws IOException {
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
-        return new String(packet.getData(), 0, packet.getLength());
+        return packet.getData();
     }
 
     @Override

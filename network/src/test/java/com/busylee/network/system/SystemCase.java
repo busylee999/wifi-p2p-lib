@@ -113,7 +113,7 @@ public class SystemCase {
             udpEngineFakes.add(udpEngineFake);
         }
 
-        synchronized void sendMessage(String message) {
+        synchronized void sendMessage(byte[] message) {
             for(UdpEngineFakeImpl udpEngineFake : udpEngineFakes) {
                 udpEngineFake.addToQueue(message);
             }
@@ -122,7 +122,7 @@ public class SystemCase {
 
     class UdpEngineFakeImpl implements UdpEngine {
 
-        final Queue<String> messagesQueue;
+        final Queue<byte[]> messagesQueue;
         final FakeDisturbingTool fake;
         final InetAddress address;
         final Lock lock;
@@ -137,7 +137,7 @@ public class SystemCase {
             condition = lock.newCondition();
         }
 
-        public void addToQueue(String message) {
+        public void addToQueue(byte[] message) {
             messagesQueue.add(message);
 //            lock.lock();
 //            condition.signalAll();
@@ -145,7 +145,7 @@ public class SystemCase {
         }
 
         @Override
-        public String waitForNextMessage() throws SocketException, SocketTimeoutException {
+        public byte[] waitForNextMessage() throws SocketException, SocketTimeoutException {
 //            String poll = messagesQueue.poll();
 //            while (poll == null) {
 //                try {
@@ -161,7 +161,7 @@ public class SystemCase {
         }
 
         @Override
-        public boolean sendMessage(String message) throws SocketException {
+        public boolean sendMessage(byte[] message) throws SocketException {
             fake.sendMessage(message);
             return true;
         }

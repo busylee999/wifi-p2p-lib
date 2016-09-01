@@ -118,7 +118,11 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
         Log.d(TAG, "onWaitMessage()");
         if(mState == State.Running) {
             try {
-                final String message = udpEngine.waitForNextMessage();
+                String message = null;
+                byte[] bytes = udpEngine.waitForNextMessage();
+                if(bytes != null) {
+                    message = new String(bytes, 0, bytes.length);
+                }
                 Log.d(TAG, "onWaitMessage() message = " + message);
                 startWaiting();
                 if(message != null) {
@@ -141,7 +145,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     protected final void onSendMessage(String message) {
         if(mState == State.Running) {
             try {
-                udpEngine.sendMessage(message);
+                udpEngine.sendMessage(message.getBytes());
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "onSendMessage() error during send message");

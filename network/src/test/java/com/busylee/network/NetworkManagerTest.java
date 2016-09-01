@@ -72,7 +72,7 @@ public class NetworkManagerTest {
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         Assert.assertThat("Should contain peer",
@@ -88,7 +88,7 @@ public class NetworkManagerTest {
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
@@ -115,7 +115,7 @@ public class NetworkManagerTest {
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
@@ -135,7 +135,7 @@ public class NetworkManagerTest {
     @Test
     public void shouldCreateAndRegisterNewSession() throws SocketException, SocketTimeoutException, UnknownHostException {
         Message message = TConsts.SESSION_INVITE_MESSAGE;
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         UdpEndpointSession udpEndpointSession
@@ -147,7 +147,7 @@ public class NetworkManagerTest {
     @Test
     public void shouldNotCreateDuplicateSession() throws UnknownHostException, SocketException, SocketTimeoutException {
         Message message = TConsts.SESSION_INVITE_MESSAGE;
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         networkManager.createSession(new UserEndpoint(null, TConsts.ADDRESS));
@@ -157,7 +157,7 @@ public class NetworkManagerTest {
     @Test
     public void shouldDetectGroupPeer() throws UnknownHostException, SocketException, SocketTimeoutException {
         Message message = TConsts.GROUP_PEER_MESSAGE;
-        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(message.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         List<Endpoint> availablePeers = networkManager.getAvailableEndpoints();
@@ -169,7 +169,7 @@ public class NetworkManagerTest {
     public void shouldCreateSessionForGroupEndpoint() throws SocketException, SocketTimeoutException {
         Message groupPeerMessage = TConsts.GROUP_PEER_MESSAGE;
         when(udpEngineMock.waitForNextMessage())
-                .thenReturn(groupPeerMessage.toString());
+                .thenReturn(groupPeerMessage.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         Assert.assertThat("Should create and store session for group endpoint",
@@ -181,8 +181,8 @@ public class NetworkManagerTest {
         Message groupPeerMessage = TConsts.GROUP_PEER_MESSAGE;
         Message dataMessage = TConsts.GROUP_DATA_MESSAGE;
         when(udpEngineMock.waitForNextMessage())
-                .thenReturn(groupPeerMessage.toString())
-                .thenReturn(dataMessage.toString());
+                .thenReturn(groupPeerMessage.toString().getBytes())
+                .thenReturn(dataMessage.toString().getBytes());
         networkManager.start();
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
@@ -224,6 +224,6 @@ public class NetworkManagerTest {
         networkManager.start();
         networkManager.createGroup(String.valueOf(GROUP_PEER_ID));
         TUtils.oneTask(sendingThread);
-        verify(udpEngineMock).sendMessage(message.toString());
+        verify(udpEngineMock).sendMessage(message.toString().getBytes());
     }
 }
