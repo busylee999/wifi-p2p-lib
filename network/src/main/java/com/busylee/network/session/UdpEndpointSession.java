@@ -2,6 +2,8 @@ package com.busylee.network.session;
 
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.SerializationContext;
+import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
 
 import java.util.Observer;
@@ -10,17 +12,20 @@ import java.util.Observer;
 /**
  * Created by busylee on 04.08.16.
  */
-public abstract class UdpEndpointSession extends EndpointSession implements Observer {
+public abstract class UdpEndpointSession extends EndpointSession implements Observer, SerializationListener {
 
     protected final NetworkEngine networkEngine;
+    private final SerializationContext serializationContext;
     private final Endpoint endpoint;
     protected SessionListener sessionListener;
     private EState mCurrentState;
 
-    public UdpEndpointSession(Endpoint endpoint, NetworkEngine networkEngine) {
+    public UdpEndpointSession(Endpoint endpoint, NetworkEngine networkEngine, SerializationContext serializationContext) {
         this.endpoint = endpoint;
         this.networkEngine = networkEngine;
-        this.networkEngine.addObserver(this);
+        this.serializationContext = serializationContext;
+        this.serializationContext.setListener(this);
+        this.networkEngine.addObserver(serializationContext);
         //TODO think about it
         mCurrentState = EState.Established;
     }
@@ -39,7 +44,7 @@ public abstract class UdpEndpointSession extends EndpointSession implements Obse
 
     @Override
     public void sendMessage(Message message) {
-        networkEngine.sendMessageBroadcast(message.toString().getBytes());
+        serializationContext.sendMessage(networkEngine, message);
     }
 
     @Override

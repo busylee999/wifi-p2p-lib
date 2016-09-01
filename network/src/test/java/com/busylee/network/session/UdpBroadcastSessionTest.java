@@ -6,9 +6,11 @@ import android.os.Process;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
+import com.google.gson.GsonBuilder;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +48,7 @@ public class UdpBroadcastSessionTest {
                 = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
         networkEngine.start();
-        udpBroadcastSession = new UdpBroadcastSession(networkEngine);
+        udpBroadcastSession = new UdpBroadcastSession(networkEngine, new Base64Context(new GsonBuilder().create()));
     }
 
     @Test

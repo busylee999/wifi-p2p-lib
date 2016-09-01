@@ -4,6 +4,7 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.NonNull;
 
+import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
@@ -11,6 +12,7 @@ import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UserUdpEndpointSession;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.google.gson.GsonBuilder;
 
 import org.junit.*;
 import org.junit.Assert;
@@ -64,7 +66,7 @@ public class SessionManagerTest extends Assert {
 
     @NonNull
     private EndpointSession createUdpEndpointSession(UserEndpoint userEndpoint, NetworkEngine networkEngineMock) {
-        return new SessionFactory().createSession(userEndpoint, networkEngineMock);
+        return new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(userEndpoint, networkEngineMock);
     }
 
     @NonNull

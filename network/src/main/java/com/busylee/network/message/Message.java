@@ -1,6 +1,5 @@
 package com.busylee.network.message;
 
-import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
@@ -174,6 +173,15 @@ public class Message {
             message.addressFrom = this.addressFrom;
             message.command = this.command;
             return message;
+        }
+
+        public static Builder from(Message message) {
+            return new Builder()
+                    .setData(message.data)
+                    .setId(message.id)
+                    .setAddressFrom(message.addressFrom)
+                    .setAddressTo(message.addressTo)
+                    .setCommand(message.command);
         }
     }
 }

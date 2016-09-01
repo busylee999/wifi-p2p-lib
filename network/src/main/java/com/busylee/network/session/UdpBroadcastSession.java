@@ -2,8 +2,11 @@ package com.busylee.network.session;
 
 import android.util.Log;
 
+import com.busylee.network.Network;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.SerializationContext;
+import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
@@ -16,15 +19,18 @@ import static com.busylee.network.message.Message.Command.*;
 /**
  * Created by busylee on 03.08.16.
  */
-public class UdpBroadcastSession extends AbstractSession implements NetworkEngine.NetworkListener{
+public class UdpBroadcastSession extends AbstractSession implements NetworkEngine.NetworkListener, SerializationListener {
 
     private static final String TAG = "UdpBroadcastSession";
+    private final SerializationContext serializationContext;
     private final NetworkEngine networkEngine;
     private EndPointListener mEndpointListener;
 
-    UdpBroadcastSession(NetworkEngine networkEngine) {
+    UdpBroadcastSession(NetworkEngine networkEngine, SerializationContext serializationContext) {
+        this.serializationContext = serializationContext;
+        this.serializationContext.setListener(this);
         this.networkEngine = networkEngine;
-        this.networkEngine.addObserver(this);
+        this.networkEngine.addObserver(serializationContext);
     }
 
     @Override
@@ -39,7 +45,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
                 .setCommand(DATA)
                 .setData(messageBody)
                 .build();
-        networkEngine.sendMessageBroadcast(message.toString().getBytes());
+        sendMessage(message);
     }
 
     @Override
@@ -49,7 +55,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void sendMessage(Message message) {
-        networkEngine.sendMessageBroadcast(message.toString().getBytes());
+        serializationContext.sendMessage(networkEngine, message);
     }
 
     public void setEndpointListener(EndPointListener endPointListener) {
@@ -63,12 +69,16 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void close() {
-        //TODO
+        //TODO implement
     }
 
     @Override
     public void update(Observable observable, Object data) {
-        Message message = new GsonBuilder().create().fromJson(new String((byte[]) data), Message.class);
+        //TODO remove deprecated method
+    }
+
+    @Override
+    public void onMessage(Message message) {
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;

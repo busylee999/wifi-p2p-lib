@@ -3,13 +3,16 @@ package com.busylee.network.session;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.NonNull;
+import android.util.Base64;
 
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
+import com.google.gson.GsonBuilder;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,15 +71,15 @@ public class UserUdpEndpointSessionTest {
         String expectedMessage = "{\"addressTo\":\"1.1.1.1\"," +
                 "\"id\":\"id\"," +
                 "\"command\":\"DATA\"," +
-                "\"data\":\"testMessage\"}";
+                "\"data\":\"" + Base64.encodeToString(message.getBytes(), Base64.DEFAULT) + "\"}";
         verify(networkEngine).sendMessageBroadcast(
-                TUtils.toBytes(expectedMessage)
+                expectedMessage.getBytes()
         );
     }
 
     @NonNull
     private UserUdpEndpointSession createEndpointSession() {
-        return new SessionFactory().createSession(userEndpoint, networkEngine);
+        return new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(userEndpoint, networkEngine);
     }
 
     @Test
@@ -87,8 +90,8 @@ public class UserUdpEndpointSessionTest {
                 .setCommand(Message.Command.DATA)
                 .setData(data)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
-        TUtils.oneTask(receivingThread);
+
+        udpEndpointSession.onMessage(message);
         verify(sessionListenerMock).onNewMessage(userEndpoint, data);
     }
 
@@ -133,7 +136,7 @@ public class UserUdpEndpointSessionTest {
     @Test
     public void shouldExpiredSimultaneously() {
         udpEndpointSession =
-                new UserUdpEndpointSession(userEndpoint, networkEngine, 0);
+                new UserUdpEndpointSession(userEndpoint, networkEngine, new Base64Context(new GsonBuilder().create()), 0);
         Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
 

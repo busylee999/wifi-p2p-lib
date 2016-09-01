@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.SerializationContext;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,12 +25,12 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     private final Gson gson;
     private long lastActionTime;
 
-    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine) {
-        this(groupEndpoint, networkEngine, DEFAULT_EXPIRED_BOUND);
+    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine,  SerializationContext serializationContext) {
+        this(groupEndpoint, networkEngine, serializationContext, DEFAULT_EXPIRED_BOUND);
     }
 
-    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine, long expiredBound) {
-        super(groupEndpoint, networkEngine);
+    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine, SerializationContext serializationContext, long expiredBound) {
+        super(groupEndpoint, networkEngine, serializationContext);
         this.groupEndpoint = groupEndpoint;
         this.expiredBound = expiredBound;
         this.gson = new GsonBuilder().create();
@@ -37,8 +38,42 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     }
 
     @Override
+    @Deprecated
     public void update(Observable observable, Object data) {
-        Message message = gson.fromJson(new String((byte[]) data), Message.class);
+        //TODO remove deprecated method
+    }
+
+    private void updateLastActionTime() {
+        lastActionTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void ping() {
+        //TODO
+    }
+
+    @Override
+    public void sendDataMessage(String stringMessage) {
+        Message message = new Message.Builder()
+                .setId(groupEndpoint.getId())
+                .setCommand(Message.Command.DATA)
+                .setData(stringMessage)
+                .build();
+        sendMessage(message);
+    }
+
+    @Override
+    public GroupEndpoint getEndpoint() {
+        return groupEndpoint;
+    }
+
+    @Override
+    public boolean isExpired() {
+        return lastActionTime + expiredBound <= System.currentTimeMillis() ;
+    }
+
+    @Override
+    public void onMessage(Message message) {
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;
@@ -60,34 +95,5 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
                 }
                 break;
         }
-    }
-
-    private void updateLastActionTime() {
-        lastActionTime = System.currentTimeMillis();
-    }
-
-    @Override
-    public void ping() {
-        //TODO
-    }
-
-    @Override
-    public void sendDataMessage(String stringMessage) {
-        Message message = new Message.Builder()
-                .setId(groupEndpoint.getId())
-                .setCommand(Message.Command.DATA)
-                .setData(stringMessage)
-                .build();
-        networkEngine.sendMessageBroadcast(message.toString().getBytes());
-    }
-
-    @Override
-    public GroupEndpoint getEndpoint() {
-        return groupEndpoint;
-    }
-
-    @Override
-    public boolean isExpired() {
-        return lastActionTime + expiredBound <= System.currentTimeMillis() ;
     }
 }

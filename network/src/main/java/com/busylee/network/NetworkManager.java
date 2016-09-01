@@ -1,6 +1,7 @@
 package com.busylee.network;
 
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionFactory;
@@ -9,6 +10,8 @@ import com.busylee.network.session.UdpBroadcastSession;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     private List<Listener> listeners = new LinkedList<>();
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
-        this(networkEngine, sessionManager, new SessionFactory());
+        this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())));
     }
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory) {

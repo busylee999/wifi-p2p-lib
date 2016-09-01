@@ -1,12 +1,17 @@
 package com.busylee.network.session;
 
+import android.util.Base64;
+
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
+import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.google.gson.GsonBuilder;
 
+import org.bouncycastle.jce.provider.symmetric.ARC4;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +45,7 @@ public class GroupUdpEndpointSessionTest {
         sessionListenerMock = mock(AbstractSession.SessionListener.class);
         groupEndpoint = TConsts.GROUP_ENDPOINT;
         networkEngineMock = mock(NetworkEngine.class);
-        udpEndpointSession = new SessionFactory().createSession(groupEndpoint, networkEngineMock);
+        udpEndpointSession = new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(groupEndpoint, networkEngineMock);
         udpEndpointSession.setSessionListener(sessionListenerMock);
         networkEngineMock.start();
 
@@ -52,7 +57,7 @@ public class GroupUdpEndpointSessionTest {
         udpEndpointSession.sendDataMessage(message);
         String expectedMessage = "{\"id\":\"" + TConsts.GROUP_PEER_ID + "\"," +
                 "\"command\":\"DATA\"," +
-                "\"data\":\"testMessage\"}";
+                "\"data\":\"" + Base64.encodeToString(message.getBytes(), Base64.DEFAULT) +"\"}";
         verify(networkEngineMock).sendMessageBroadcast(
                 TUtils.toBytes(expectedMessage)
         );
@@ -60,7 +65,7 @@ public class GroupUdpEndpointSessionTest {
 
     @Test
     public void shouldNotifyListenerOnNewDataMessage() throws UnknownHostException, SocketException, SocketTimeoutException {
-        udpEndpointSession.update(null, TUtils.toBytes(TConsts.GROUP_DATA_MESSAGE.toString()));
+        udpEndpointSession.onMessage(TConsts.GROUP_DATA_MESSAGE);
         verify(sessionListenerMock).onNewMessage(groupEndpoint, TConsts.GROUP_MESSAGE_TEXT);
     }
 
@@ -71,21 +76,21 @@ public class GroupUdpEndpointSessionTest {
                 .setCommand(Message.Command.DATA)
                 .setData(data)
                 .build();
-        udpEndpointSession.update(null, TUtils.toBytes(message.toString()));
+        udpEndpointSession.onMessage(message);
         verify(sessionListenerMock, never()).onNewMessage((Endpoint) any(), anyString());
     }
 
     @Test
     public void shouldNotExpired() {
         Message message = TConsts.GROUP_DATA_MESSAGE;
-        udpEndpointSession.update(null, TUtils.toBytes(message));
+        udpEndpointSession.onMessage(message);
         Assert.assertTrue("Should not be expired", !udpEndpointSession.isExpired());
     }
 
     @Test
     public void shouldExpiredSimultaneously() {
         udpEndpointSession =
-                new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, 0);
+                new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, new Base64Context(new GsonBuilder().create()), 0);
         Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
 
