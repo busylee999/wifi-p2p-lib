@@ -10,6 +10,7 @@ import java.net.InetAddress;
 /**
  * Created by busylee on 04.08.16.
  */
+@Deprecated
 public class PeerNetworkEngine extends NetworkEngine {
     private static final int AUTH = 1001;
     private final int authDelay;
@@ -46,7 +47,7 @@ public class PeerNetworkEngine extends NetworkEngine {
                         .setAddressFrom(inetAddress)
                         .build();
                 //TODO think about it
-                onSendMessage(message.toString());
+                onSendMessage(message.toString().getBytes());
             }
             sendAuthDelay();
             return false;

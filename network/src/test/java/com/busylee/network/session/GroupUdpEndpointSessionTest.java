@@ -5,6 +5,7 @@ import com.busylee.network.TConsts;
 import com.busylee.network.message.Message;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
+import com.busylee.network.testutils.TUtils;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,10 +50,11 @@ public class GroupUdpEndpointSessionTest {
     public void shouldSendDirectMessage() {
         final String message = "testMessage";
         udpEndpointSession.sendDataMessage(message);
+        String expectedMessage = "{\"id\":\"" + TConsts.GROUP_PEER_ID + "\"," +
+                "\"command\":\"DATA\"," +
+                "\"data\":\"testMessage\"}";
         verify(networkEngineMock).sendMessageBroadcast(
-                "{\"id\":\"" + TConsts.GROUP_PEER_ID + "\"," +
-                        "\"command\":\"DATA\"," +
-                        "\"data\":\"testMessage\"}"
+                TUtils.toBytes(expectedMessage)
         );
     }
 

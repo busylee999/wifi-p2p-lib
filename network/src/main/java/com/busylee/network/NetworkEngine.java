@@ -142,10 +142,10 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
         }
     }
 
-    protected final void onSendMessage(String message) {
+    protected final void onSendMessage(byte[] message) {
         if(mState == State.Running) {
             try {
-                udpEngine.sendMessage(message.getBytes());
+                udpEngine.sendMessage(message);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "onSendMessage() error during send message");
@@ -159,7 +159,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case SEND_MESSAGE:
-                onSendMessage((String) msg.obj);
+                onSendMessage((byte[]) msg.obj);
                 return true;
             case WAIT_NEXT_MESSAGE:
                 onWaitMessage();
@@ -169,11 +169,11 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     }
 
     @Override
-    public void sendMessageBroadcast(String message) {
+    public void sendMessageBroadcast(byte[] message) {
         sendBroadcastMessageDelayed(message, 0);
     }
 
-    protected void sendBroadcastMessageDelayed(String message, int delay) {
+    protected void sendBroadcastMessageDelayed(byte[] message, int delay) {
         Message sendMessage = new Message();
         sendMessage.obj = message;
         sendMessage.what = SEND_MESSAGE;

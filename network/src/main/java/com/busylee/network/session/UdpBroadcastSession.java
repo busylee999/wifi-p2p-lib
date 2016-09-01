@@ -39,7 +39,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
                 .setCommand(DATA)
                 .setData(messageBody)
                 .build();
-        networkEngine.sendMessageBroadcast(message.toString());
+        networkEngine.sendMessageBroadcast(message.toString().getBytes());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void sendMessage(Message message) {
-        networkEngine.sendMessageBroadcast(message.toString());
+        networkEngine.sendMessageBroadcast(message.toString().getBytes());
     }
 
     public void setEndpointListener(EndPointListener endPointListener) {

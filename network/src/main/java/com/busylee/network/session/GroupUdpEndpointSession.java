@@ -78,7 +78,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
                 .setCommand(Message.Command.DATA)
                 .setData(stringMessage)
                 .build();
-        networkEngine.sendMessageBroadcast(message.toString());
+        networkEngine.sendMessageBroadcast(message.toString().getBytes());
     }
 
     @Override

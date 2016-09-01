@@ -39,7 +39,7 @@ public abstract class UdpEndpointSession extends EndpointSession implements Obse
 
     @Override
     public void sendMessage(Message message) {
-        networkEngine.sendMessageBroadcast(message.toString());
+        networkEngine.sendMessageBroadcast(message.toString().getBytes());
     }
 
     @Override

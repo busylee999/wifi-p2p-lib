@@ -65,11 +65,12 @@ public class UserUdpEndpointSessionTest {
         networkEngine = spy(networkEngine);
         udpEndpointSession = createEndpointSession();
         udpEndpointSession.sendDataMessage(message);
+        String expectedMessage = "{\"addressTo\":\"1.1.1.1\"," +
+                "\"id\":\"id\"," +
+                "\"command\":\"DATA\"," +
+                "\"data\":\"testMessage\"}";
         verify(networkEngine).sendMessageBroadcast(
-                "{\"addressTo\":\"1.1.1.1\"," +
-                        "\"id\":\"id\"," +
-                        "\"command\":\"DATA\"," +
-                        "\"data\":\"testMessage\"}"
+                TUtils.toBytes(expectedMessage)
         );
     }
 

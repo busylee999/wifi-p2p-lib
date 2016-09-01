@@ -8,7 +8,7 @@ import java.util.Observer;
  * Created by busylee on 30.07.16.
  */
 public interface Network {
-    void sendMessageBroadcast(String message);
+    void sendMessageBroadcast(byte[] message);
 
     InetAddress getIpAddress();
 
