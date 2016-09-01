@@ -69,14 +69,4 @@ public class NetworkEngineTest {
         verify(networkListenerMock, times(1)).update((Observable) any(), eq(testMessage));
     }
 
-    @Test
-    public void shouldSendCorrectPrivateMessage() throws SocketException {
-        final String testIp = "testIp";
-        final String testMessage = "test message";
-        final String expectedMessage = Utils.convertIpToFullMs(testIp, testMessage);
-        networkEngine.sendPrivateMessage(testIp, testMessage);
-        TUtils.oneTask(sendingThread);
-        verify(udpEngineMock, times(1)).sendMessage(TUtils.toBytes(expectedMessage));
-    }
-
 }

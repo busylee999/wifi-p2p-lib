@@ -188,12 +188,6 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
         }
     }
 
-    @Deprecated
-    @Override
-    public void sendPrivateMessage(String ip, String message) {
-        sendMessageBroadcast(Utils.convertIpToFullMs(ip, message));
-    }
-
     @Override
     public InetAddress getIpAddress() {
         return udpEngine.getIpAddress();

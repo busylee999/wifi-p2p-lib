@@ -9,7 +9,6 @@ import java.util.Observer;
  */
 public interface Network {
     void sendMessageBroadcast(String message);
-    void sendPrivateMessage(String testIp, String testMessage);
 
     InetAddress getIpAddress();
 
