@@ -37,12 +37,6 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
         updateLastActionTime();
     }
 
-    @Override
-    @Deprecated
-    public void update(Observable observable, Object data) {
-        //TODO remove deprecated method
-    }
-
     private void updateLastActionTime() {
         lastActionTime = System.currentTimeMillis();
     }

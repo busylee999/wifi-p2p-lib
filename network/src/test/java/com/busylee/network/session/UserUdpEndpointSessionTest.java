@@ -129,7 +129,7 @@ public class UserUdpEndpointSessionTest {
     @Test
     public void shouldNotExpired() {
         Message message = TConsts.GROUP_DATA_MESSAGE;
-        udpEndpointSession.update(null, TUtils.toBytes(message));
+        udpEndpointSession.onMessage(message);
         Assert.assertTrue("Should not be expired", !udpEndpointSession.isExpired());
     }
 

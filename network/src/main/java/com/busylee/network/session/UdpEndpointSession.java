@@ -12,7 +12,7 @@ import java.util.Observer;
 /**
  * Created by busylee on 04.08.16.
  */
-public abstract class UdpEndpointSession extends EndpointSession implements Observer, SerializationListener {
+public abstract class UdpEndpointSession extends EndpointSession implements SerializationListener {
 
     protected final NetworkEngine networkEngine;
     private final SerializationContext serializationContext;

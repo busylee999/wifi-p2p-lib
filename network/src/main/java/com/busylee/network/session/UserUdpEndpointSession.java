@@ -45,12 +45,6 @@ public class UserUdpEndpointSession extends UdpEndpointSession implements Serial
     }
 
     @Override
-    @Deprecated
-    public void update(Observable observable, Object data) {
-        //TODO remove this deprecated method, it was changed by onMessage
-    }
-
-    @Override
     public void ping() {
         //TODO need to be implement
     }
