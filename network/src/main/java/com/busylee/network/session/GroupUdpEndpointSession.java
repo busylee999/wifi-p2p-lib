@@ -38,7 +38,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
 
     @Override
     public void update(Observable observable, Object data) {
-        Message message = gson.fromJson((String) data, Message.class);
+        Message message = gson.fromJson(new String((byte[]) data), Message.class);
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;

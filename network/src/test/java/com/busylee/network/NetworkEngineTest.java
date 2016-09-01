@@ -66,7 +66,7 @@ public class NetworkEngineTest {
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(testMessage));
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(sendingThread);
-        verify(networkListenerMock, times(1)).update((Observable) any(), eq(testMessage));
+        verify(networkListenerMock, times(1)).update((Observable) any(), eq(TUtils.toBytes(testMessage)));
     }
 
 }

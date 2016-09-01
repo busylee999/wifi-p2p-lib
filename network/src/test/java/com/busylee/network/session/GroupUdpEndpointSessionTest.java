@@ -60,7 +60,7 @@ public class GroupUdpEndpointSessionTest {
 
     @Test
     public void shouldNotifyListenerOnNewDataMessage() throws UnknownHostException, SocketException, SocketTimeoutException {
-        udpEndpointSession.update(null, TConsts.GROUP_DATA_MESSAGE.toString());
+        udpEndpointSession.update(null, TUtils.toBytes(TConsts.GROUP_DATA_MESSAGE.toString()));
         verify(sessionListenerMock).onNewMessage(groupEndpoint, TConsts.GROUP_MESSAGE_TEXT);
     }
 
@@ -71,14 +71,14 @@ public class GroupUdpEndpointSessionTest {
                 .setCommand(Message.Command.DATA)
                 .setData(data)
                 .build();
-        udpEndpointSession.update(null, message.toString());
+        udpEndpointSession.update(null, TUtils.toBytes(message.toString()));
         verify(sessionListenerMock, never()).onNewMessage((Endpoint) any(), anyString());
     }
 
     @Test
     public void shouldNotExpired() {
         Message message = TConsts.GROUP_DATA_MESSAGE;
-        udpEndpointSession.update(null, message.toString());
+        udpEndpointSession.update(null, TUtils.toBytes(message));
         Assert.assertTrue("Should not be expired", !udpEndpointSession.isExpired());
     }
 

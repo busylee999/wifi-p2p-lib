@@ -68,7 +68,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void update(Observable observable, Object data) {
-        Message message = new GsonBuilder().create().fromJson((String) data, Message.class);
+        Message message = new GsonBuilder().create().fromJson(new String((byte[]) data), Message.class);
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;

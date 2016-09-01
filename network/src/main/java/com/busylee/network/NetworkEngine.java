@@ -93,7 +93,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
 
     }
 
-    private void postToListener(final String message) {
+    private void postToListener(final byte[] message) {
         Log.d(TAG, "postToListener()");
         if(listenerHandler != null) {
             listenerHandler.post(new Runnable() {
@@ -118,15 +118,11 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
         Log.d(TAG, "onWaitMessage()");
         if(mState == State.Running) {
             try {
-                String message = null;
                 byte[] bytes = udpEngine.waitForNextMessage();
-                if(bytes != null) {
-                    message = new String(bytes, 0, bytes.length);
-                }
-                Log.d(TAG, "onWaitMessage() message = " + message);
                 startWaiting();
-                if(message != null) {
-                    postToListener(message);
+                if(bytes != null) {
+                    Log.w(TAG, "onWaitMessage() message is " + new String(bytes));
+                    postToListener(bytes);
                 } else {
                     Log.w(TAG, "onWaitMessage() message is null");
                 }
