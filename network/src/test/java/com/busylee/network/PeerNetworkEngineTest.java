@@ -51,7 +51,7 @@ public class PeerNetworkEngineTest {
                 "{\"addressFrom\":\"1.1.1.1\",\"command\":\"PEER\"}";
         when(udpEngineMock.getIpAddress()).thenReturn(fakeAddress);
         TUtils.oneTask(sendingThread);
-        verify(udpEngineMock, times(1)).sendMessage(expectedMessage.getBytes());
+        verify(udpEngineMock, times(1)).sendMessage(TUtils.toBytes(expectedMessage));
     }
 
 }

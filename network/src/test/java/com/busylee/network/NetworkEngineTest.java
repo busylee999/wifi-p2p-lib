@@ -63,7 +63,7 @@ public class NetworkEngineTest {
     @Test
     public void shouldNotifyListener() throws SocketException, SocketTimeoutException {
         final String testMessage = "test message";
-        when(udpEngineMock.waitForNextMessage()).thenReturn(testMessage.getBytes());
+        when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(testMessage));
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(sendingThread);
         verify(networkListenerMock, times(1)).update((Observable) any(), eq(testMessage));
@@ -76,7 +76,7 @@ public class NetworkEngineTest {
         final String expectedMessage = Utils.convertIpToFullMs(testIp, testMessage);
         networkEngine.sendPrivateMessage(testIp, testMessage);
         TUtils.oneTask(sendingThread);
-        verify(udpEngineMock, times(1)).sendMessage(expectedMessage.getBytes());
+        verify(udpEngineMock, times(1)).sendMessage(TUtils.toBytes(expectedMessage));
     }
 
 }
