@@ -9,6 +9,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class UdpEngineImpl implements UdpEngine {
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
-        return packet.getData();
+        return Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
     }
 
     @Override
