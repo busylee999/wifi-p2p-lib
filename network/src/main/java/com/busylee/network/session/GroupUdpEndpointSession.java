@@ -18,8 +18,6 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
 
     private static final String TAG = "GroupUdpEndpointSession";
 
-    private static final long DEFAULT_EXPIRED_BOUND = 5 * 1000; // exevy 5 sec
-
     private final GroupEndpoint groupEndpoint;
     private final long expiredBound;
     private final Gson gson;

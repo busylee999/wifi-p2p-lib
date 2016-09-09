@@ -14,6 +14,7 @@ import java.util.Observer;
  */
 public abstract class UdpEndpointSession extends EndpointSession implements SerializationListener {
 
+    static final int DEFAULT_EXPIRED_BOUND = 5 * 1000; //5 sec
     protected final NetworkEngine networkEngine;
     private final SerializationContext serializationContext;
     private final Endpoint endpoint;

@@ -10,8 +10,6 @@ import com.busylee.network.session.endpoint.UserEndpoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.Observable;
-
 /**
  * Created by busylee on 23.08.16.
  */
@@ -19,7 +17,6 @@ import java.util.Observable;
 public class UserUdpEndpointSession extends UdpEndpointSession implements SerializationListener {
 
     private static final String TAG = "UdpEndpointSession";
-    private static final int DEFAULT_EXPIRED_BOUND = 5 * 1000; //5 sec
 
     private final UserEndpoint endpoint;
     private final long expiredBound;
