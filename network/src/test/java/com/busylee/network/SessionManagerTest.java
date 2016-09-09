@@ -1,7 +1,6 @@
 package com.busylee.network;
 
 import android.os.HandlerThread;
-import android.os.Process;
 import android.support.annotation.NonNull;
 
 import com.busylee.network.module.Mocked;
@@ -98,5 +97,13 @@ public class SessionManagerTest extends Assert {
         verify(endpointSessionMock).close();
         Assert.assertTrue("Should remove session from active session list",
                 sessionManager.getSessionList().size() == 0);
+    }
+
+    @Test
+    public void shouldCallOnPingListener() {
+        SessionManager.OnPingLoopListener onPingLoopListener = mock(SessionManager.OnPingLoopListener.class);
+        sessionManager.setOnPingListener(onPingLoopListener);
+        TUtils.oneTask(pingThread);
+        verify(onPingLoopListener).pingLoop();
     }
 }

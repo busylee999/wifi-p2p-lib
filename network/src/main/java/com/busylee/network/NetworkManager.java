@@ -26,6 +26,8 @@ import javax.inject.Inject;
  */
 public class NetworkManager implements UdpBroadcastSession.EndPointListener, AbstractSession.SessionListener {
 
+    public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 5 * 1000;
+
     private final NetworkEngine networkEngine;
     private final UdpBroadcastSession udpBroadcastSession;
     private final SessionManager sessionManager;

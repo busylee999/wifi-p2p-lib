@@ -227,4 +227,21 @@ public class NetworkManagerTest {
         TUtils.oneTask(sendingThread);
         verify(udpEngineMock).sendMessage(TUtils.toBytes(message));
     }
+
+    @Test
+    public void shouldCallEndpointChangeListenerIfEndpointBecameUnavailable()
+            throws UnknownHostException, SocketException, SocketTimeoutException {
+        String address = "1.1.1.1";
+        String id = "123124315refd";
+        Message message = new Message.Builder()
+                .setCommand(Message.Command.PEER)
+                .setAddressFrom(address)
+                .setId(id)
+                .build();
+        when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
+        networkManager.start();
+        TUtils.oneTask(receivingThread);
+        TUtils.oneTask(receivingThread);
+
+    }
 }

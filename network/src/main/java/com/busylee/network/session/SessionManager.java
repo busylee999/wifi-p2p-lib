@@ -3,13 +3,10 @@ package com.busylee.network.session;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.os.Process;
 import android.util.Log;
 
-import com.busylee.network.NetworkEngine;
 import com.busylee.network.module.HandlerThreadModule;
 import com.busylee.network.session.endpoint.Endpoint;
-import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,6 +23,7 @@ import javax.inject.Named;
 public class SessionManager implements Handler.Callback {
 
     private static final String TAG = "SessionManager";
+    private OnPingLoopListener onPingListener;
 
     public synchronized EndpointSession getSessionByEndpoint(Endpoint endpoint) {
         for(EndpointSession abstractSession: sessionList) {
@@ -34,6 +32,10 @@ public class SessionManager implements Handler.Callback {
             }
         }
         return null;
+    }
+
+    public void setOnPingListener(OnPingLoopListener onPingLoopListener) {
+        this.onPingListener = onPingLoopListener;
     }
 
     enum State {
@@ -72,27 +74,36 @@ public class SessionManager implements Handler.Callback {
         return false;
     }
 
-    private void pingSessions() {
+    private void schedulePingSession() {
         Message message = new Message();
         this.handler.sendMessageDelayed(message, delay);
     }
 
-    private synchronized void onPingSessions() {
+    private void onPingSessions() {
+        pingSessions();
+        schedulePingSession();
+        if(onPingListener != null) {
+            onPingListener.pingLoop();
+        }
+    }
+
+    private synchronized void pingSessions() {
         Iterator<EndpointSession> iterator = sessionList.iterator();
         while(iterator.hasNext()) {
             EndpointSession endpointSession = iterator.next();
-            if(endpointSession.isExpired()) {
-                endpointSession.close();
-            }
-
+            closeOrPingSession(endpointSession);
             if(endpointSession.getState() == AbstractSession.EState.Closed) {
                 iterator.remove();
-            } else {
-                endpointSession.ping();
             }
         }
+    }
 
-        pingSessions();
+    private void closeOrPingSession(EndpointSession endpointSession) {
+        if(endpointSession.isExpired()) {
+            endpointSession.close();
+        } else {
+            endpointSession.ping();
+        }
     }
 
     public void start() {
@@ -109,7 +120,7 @@ public class SessionManager implements Handler.Callback {
 
         mState = State.Running;
 
-        pingSessions();
+        schedulePingSession();
     }
 
     public void stop() {
@@ -137,4 +148,9 @@ public class SessionManager implements Handler.Callback {
     public synchronized List<EndpointSession> getSessionList() {
         return sessionList;
     }
+
+    public interface OnPingLoopListener {
+        void pingLoop();
+    }
+
 }
