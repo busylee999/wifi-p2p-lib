@@ -23,11 +23,16 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     private final Gson gson;
     private long lastActionTime;
 
-    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine,  SerializationContext serializationContext) {
+    GroupUdpEndpointSession(GroupEndpoint groupEndpoint,
+                            NetworkEngine networkEngine,
+                            SerializationContext serializationContext) {
         this(groupEndpoint, networkEngine, serializationContext, DEFAULT_EXPIRED_BOUND);
     }
 
-    GroupUdpEndpointSession(GroupEndpoint groupEndpoint, NetworkEngine networkEngine, SerializationContext serializationContext, long expiredBound) {
+    GroupUdpEndpointSession(GroupEndpoint groupEndpoint,
+                            NetworkEngine networkEngine,
+                            SerializationContext serializationContext,
+                            long expiredBound) {
         super(groupEndpoint, networkEngine, serializationContext);
         this.groupEndpoint = groupEndpoint;
         this.expiredBound = expiredBound;
