@@ -13,8 +13,10 @@ import org.robolectric.shadows.ShadowLooper;
  */
 public class TUtils {
     public static void oneTask(HandlerThread handlerThread) {
-        ShadowLooper looper = Shadows.shadowOf(handlerThread.getLooper());
-        looper.runOneTask();
+        if(handlerThread.isAlive()) {
+            ShadowLooper looper = Shadows.shadowOf(handlerThread.getLooper());
+            looper.runOneTask();
+        }
     }
 
     public static byte[] toBytes(Message message) {

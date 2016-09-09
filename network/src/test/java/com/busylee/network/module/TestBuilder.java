@@ -11,6 +11,7 @@ public class TestBuilder {
                 .udpModuleMock(new UdpModuleMock())
                 .sessionModule(new SessionModule())
                 .sessionModuleMock(new SessionModuleMock())
+                .utilsModule(new UtilsModule())
                 .build();
     }
 }

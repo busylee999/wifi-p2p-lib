@@ -1,10 +1,6 @@
 package com.busylee.network;
 
-import android.os.HandlerThread;
-import android.os.Process;
-
 import com.busylee.network.message.Message;
-import com.busylee.network.module.Mocked;
 import com.busylee.network.module.TestBuilder;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionManager;
@@ -12,6 +8,7 @@ import com.busylee.network.session.UdpEndpointSession;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
+import com.busylee.network.testutils.TLoop;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
 
@@ -27,10 +24,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import static com.busylee.network.TConsts.GROUP_PEER_ID;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -50,12 +45,8 @@ public class NetworkManagerTest {
     SessionManager sessionManager;
     @Inject
     NetworkEngine networkEngine;
-    @Inject @Named("sending")
-    HandlerThread sendingThread;
-    @Inject @Named("receiving")
-    HandlerThread receivingThread;
-    @Inject @Named("ping")
-    HandlerThread pingThread;
+    @Inject
+    TLoop loop;
     @Inject
     UdpEngine udpEngineMock;
 
@@ -78,7 +69,7 @@ public class NetworkManagerTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         Assert.assertThat("Should contain peer",
                 networkManager.getAvailableEndpoints().contains(userEndpoint));
     }
@@ -94,8 +85,7 @@ public class NetworkManagerTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         int size = networkManager.getAvailableEndpoints().size();
         Assert.assertThat("Should contain only one peer, but size is " + size,
                 size == 1);
@@ -122,8 +112,7 @@ public class NetworkManagerTest {
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         verify(networkListenerMock).onPeerChanged();
     }
 
@@ -142,7 +131,7 @@ public class NetworkManagerTest {
         Message message = TConsts.SESSION_INVITE_MESSAGE;
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         UdpEndpointSession udpEndpointSession
                 = (UdpEndpointSession) sessionManager.getSessionList().get(0);
 
@@ -154,7 +143,7 @@ public class NetworkManagerTest {
         Message message = TConsts.SESSION_INVITE_MESSAGE;
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         networkManager.createSession(new UserEndpoint(null, TConsts.ADDRESS));
         Assert.assertThat("Should not duplicate sessions", sessionManager.getSessionList().size() == 1);
     }
@@ -164,7 +153,7 @@ public class NetworkManagerTest {
         Message message = TConsts.GROUP_PEER_MESSAGE;
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         List<Endpoint> availablePeers = networkManager.getAvailableEndpoints();
         Assert.assertTrue("Manager must contains group peer",
                 availablePeers.contains(TConsts.GROUP_ENDPOINT));
@@ -176,7 +165,7 @@ public class NetworkManagerTest {
         when(udpEngineMock.waitForNextMessage())
                 .thenReturn(TUtils.toBytes(groupPeerMessage));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
+        loop.loop(3);
         Assert.assertThat("Should create and store session for group endpoint",
                 sessionManager.getSessionList().size() == 1);
     }
@@ -189,8 +178,7 @@ public class NetworkManagerTest {
                 .thenReturn(TUtils.toBytes(groupPeerMessage))
                 .thenReturn(TUtils.toBytes(dataMessage));
         networkManager.start();
-        TUtils.oneTask(receivingThread);
-        TUtils.oneTask(receivingThread);
+        loop.loop(2);
         verify(networkListenerMock)
                 .onMessageReceived(TConsts.GROUP_ENDPOINT, dataMessage.getData());
     }
@@ -228,7 +216,7 @@ public class NetworkManagerTest {
                 .build();
         networkManager.start();
         networkManager.createGroup(String.valueOf(GROUP_PEER_ID));
-        TUtils.oneTask(sendingThread);
+        loop.loop(3);
         verify(udpEngineMock).sendMessage(TUtils.toBytes(message));
     }
 
@@ -242,13 +230,15 @@ public class NetworkManagerTest {
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
-        when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
+        when(udpEngineMock.waitForNextMessage())
+                .thenReturn(TUtils.toBytes(message))
+                .thenThrow(new SocketException());
         networkManager.setEndpointLifeTime(300);
         networkManager.start();
-        TUtils.oneTask(receivingThread);
-        TUtils.oneTask(pingThread);
+        loop.loop(2);
+        //wait until endpoint will be expired
         Thread.sleep(500);
-        TUtils.oneTask(pingThread);
+        loop.loop(2);
         verify(networkListenerMock, times(2)).onPeerChanged();
     }
 }

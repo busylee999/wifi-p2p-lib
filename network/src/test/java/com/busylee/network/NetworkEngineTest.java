@@ -4,6 +4,7 @@ import android.os.HandlerThread;
 
 import com.busylee.network.module.Mocked;
 import com.busylee.network.module.TestBuilder;
+import com.busylee.network.testutils.TLoop;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
 
@@ -36,10 +37,8 @@ public class NetworkEngineTest {
 
     @Inject
     NetworkEngine networkEngine;
-    @Inject @Named("sending")
-    HandlerThread sendingThread;
-    @Inject @Named("receiving")
-    HandlerThread receivingThread;
+    @Inject
+    TLoop loop;
     @Inject
     UdpEngine udpEngineMock;
     Network.NetworkListener networkListenerMock;
@@ -59,7 +58,7 @@ public class NetworkEngineTest {
 
     @Test
     public void shouldStartWaitingMessage() throws SocketException, SocketTimeoutException {
-        TUtils.oneTask(receivingThread);
+        loop.loop(1);
         verify(udpEngineMock, atLeastOnce()).waitForNextMessage();
     }
 
@@ -67,8 +66,7 @@ public class NetworkEngineTest {
     public void shouldNotifyListener() throws SocketException, SocketTimeoutException {
         final String testMessage = "test message";
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(testMessage));
-        TUtils.oneTask(receivingThread);
-        TUtils.oneTask(sendingThread);
+        loop.loop(1);
         verify(networkListenerMock, times(1)).update((Observable) any(), eq(TUtils.toBytes(testMessage)));
     }
 

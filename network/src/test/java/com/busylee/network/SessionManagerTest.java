@@ -11,6 +11,7 @@ import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UserUdpEndpointSession;
 import com.busylee.network.session.endpoint.UserEndpoint;
+import com.busylee.network.testutils.TLoop;
 import com.busylee.network.testutils.TUtils;
 
 import org.junit.*;
@@ -34,8 +35,8 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class SessionManagerTest extends Assert {
 
-    @Inject @Named("ping")
-    HandlerThread pingThread;
+    @Inject
+    TLoop loop;
     @Inject
     SessionManager sessionManager;
     @Inject @Mocked
@@ -55,7 +56,7 @@ public class SessionManagerTest extends Assert {
         EndpointSession abstractSession2 = mock(EndpointSession.class);
         sessionManager.registerSession(abstractSession1);
         sessionManager.registerSession(abstractSession2);
-        TUtils.oneTask(pingThread);
+        loop.loop(1);
         verify(abstractSession1).ping();
         verify(abstractSession2).ping();
     }
@@ -93,7 +94,7 @@ public class SessionManagerTest extends Assert {
         when(endpointSessionMock.isExpired()).thenReturn(true);
         when(endpointSessionMock.getState()).thenReturn(AbstractSession.EState.Closed);
         sessionManager.registerSession(endpointSessionMock);
-        TUtils.oneTask(pingThread);
+        loop.loop(1);
         verify(endpointSessionMock).close();
         Assert.assertTrue("Should remove session from active session list",
                 sessionManager.getSessionList().size() == 0);
@@ -103,7 +104,7 @@ public class SessionManagerTest extends Assert {
     public void shouldCallOnPingListener() {
         SessionManager.OnPingLoopListener onPingLoopListener = mock(SessionManager.OnPingLoopListener.class);
         sessionManager.setOnPingListener(onPingLoopListener);
-        TUtils.oneTask(pingThread);
+        loop.loop(1);
         verify(onPingLoopListener).pingLoop();
     }
 }

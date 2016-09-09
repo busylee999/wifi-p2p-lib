@@ -16,7 +16,8 @@ import dagger.Component;
         UdpModuleMock.class,
         SessionModule.class,
         SessionModuleMock.class,
-        MainModuleMock.class
+        MainModuleMock.class,
+        UtilsModule.class
 }
 )
 public interface TestNetworkComponent {
