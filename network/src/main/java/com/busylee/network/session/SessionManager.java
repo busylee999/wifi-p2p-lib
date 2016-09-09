@@ -7,12 +7,16 @@ import android.os.Process;
 import android.util.Log;
 
 import com.busylee.network.NetworkEngine;
+import com.busylee.network.module.HandlerThreadModule;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 
 /**
@@ -44,15 +48,16 @@ public class SessionManager implements Handler.Callback {
     private final int delay;
     private State mState = State.Idle;
 
-    public SessionManager(NetworkEngine networkEngine) {
-        this(networkEngine, new HandlerThread("SessionPingThread", Process.THREAD_PRIORITY_BACKGROUND));
+    public SessionManager() {
+        this(new HandlerThreadModule().providePingThread());
     }
 
-    public SessionManager(NetworkEngine networkEngine, HandlerThread handlerThread) {
-        this(networkEngine, handlerThread, 500);
+    @Inject
+    public SessionManager(@Named("ping") HandlerThread handlerThread) {
+        this(handlerThread, 500);
     }
 
-    SessionManager(NetworkEngine networkEngine, HandlerThread handlerThread, int delay) {
+    SessionManager(HandlerThread handlerThread, int delay) {
         this.handlerThread = handlerThread;
         this.delay = delay;
     }

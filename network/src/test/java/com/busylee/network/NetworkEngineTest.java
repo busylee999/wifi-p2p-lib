@@ -1,8 +1,9 @@
 package com.busylee.network;
 
 import android.os.HandlerThread;
-import android.os.Process;
 
+import com.busylee.network.module.Mocked;
+import com.busylee.network.module.TestBuilder;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
 
@@ -15,6 +16,9 @@ import org.robolectric.RobolectricTestRunner;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Observable;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -30,21 +34,20 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class NetworkEngineTest {
 
+    @Inject
     NetworkEngine networkEngine;
+    @Inject @Named("sending")
     HandlerThread sendingThread;
+    @Inject @Named("receiving")
     HandlerThread receivingThread;
+    @Inject
     UdpEngine udpEngineMock;
     Network.NetworkListener networkListenerMock;
 
     @Before
     public void setup() {
-        udpEngineMock = mock(UdpEngine.class);
+        new TestBuilder().build().inject(this);
         networkListenerMock = mock(Network.NetworkListener.class);
-        sendingThread
-                = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        receivingThread
-                = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
         networkEngine.addObserver(networkListenerMock);
         networkEngine.start();
     }

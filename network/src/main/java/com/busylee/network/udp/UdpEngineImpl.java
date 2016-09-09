@@ -15,6 +15,8 @@ import java.util.List;
 
 import android.util.Log;
 
+import javax.inject.Inject;
+
 /**
  * Created by busylee on 14.07.15.
  */
@@ -30,6 +32,7 @@ public class UdpEngineImpl implements UdpEngine {
 
     private DatagramSocket mSocket;
 
+    @Inject
     public UdpEngineImpl() {
 
     }

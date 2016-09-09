@@ -7,12 +7,16 @@ import android.os.Message;
 import android.os.Process;
 import android.util.Log;
 
+import com.busylee.network.module.HandlerThreadModule;
 import com.busylee.network.udp.UdpEngine;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Observable;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by busylee on 30.07.16.
@@ -41,11 +45,14 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     private UdpEngine udpEngine;
 
     public NetworkEngine(UdpEngine udpEngine) {
-        this(udpEngine, new HandlerThread("SendingThread", Process.THREAD_PRIORITY_BACKGROUND)
-                , new HandlerThread("ReceivingThread", Process.THREAD_PRIORITY_BACKGROUND));
+        this(udpEngine, new HandlerThreadModule().provideSensingThread()
+                , new HandlerThreadModule().provideReceivingThread());
     }
 
-    public NetworkEngine(UdpEngine udpEngine, HandlerThread sendMessageThread, HandlerThread receiveThread) {
+    @Inject
+    public NetworkEngine(UdpEngine udpEngine,
+                         @Named("sending") HandlerThread sendMessageThread,
+                         @Named("receiving") HandlerThread receiveThread) {
         this.sendMessageThread = sendMessageThread;
         this.receiveThread = receiveThread;
         this.udpEngine = udpEngine;

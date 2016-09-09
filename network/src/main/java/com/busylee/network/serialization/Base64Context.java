@@ -8,6 +8,8 @@ import com.google.gson.Gson;
 
 import java.util.Observable;
 
+import javax.inject.Inject;
+
 /**
  * Created by busylee on 01.09.16.
  */
@@ -16,9 +18,11 @@ public class Base64Context implements SerializationContext {
     private final Gson gson;
     private SerializationListener serializationListener;
 
+    @Inject
     public Base64Context(Gson gson) {
         this.gson = gson;
     }
+
     @Override
     public void sendMessage(Network network, Message message) {
         String messageData = message.getData();

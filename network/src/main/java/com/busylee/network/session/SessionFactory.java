@@ -6,14 +6,16 @@ import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
 
+import javax.inject.Inject;
+
 /**
  * Created by busylee on 23.08.16.
  */
-
 public class SessionFactory {
 
     private final SerializationContext serializationContext;
 
+    @Inject
     public SessionFactory(SerializationContext serializationContext) {
         this.serializationContext = serializationContext;
     }

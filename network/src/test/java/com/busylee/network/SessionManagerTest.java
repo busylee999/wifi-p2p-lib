@@ -4,15 +4,15 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.support.annotation.NonNull;
 
-import com.busylee.network.serialization.Base64Context;
+import com.busylee.network.module.Mocked;
+import com.busylee.network.module.TestBuilder;
+import com.busylee.network.module.TestNetworkComponent;
 import com.busylee.network.session.AbstractSession;
 import com.busylee.network.session.EndpointSession;
-import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UserUdpEndpointSession;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
-import com.google.gson.GsonBuilder;
 
 import org.junit.*;
 import org.junit.Assert;
@@ -21,6 +21,9 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -32,16 +35,18 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class SessionManagerTest extends Assert {
 
+    @Inject @Named("ping")
     HandlerThread pingThread;
+    @Inject
     SessionManager sessionManager;
+    @Inject @Mocked
     NetworkEngine networkEngineMock;
+    private TestNetworkComponent testComponent;
+
     @Before
     public void setup() {
-        networkEngineMock = mock(NetworkEngine.class);
-        pingThread
-                = new HandlerThread("PingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-
-        sessionManager = new SessionManager(networkEngineMock, pingThread);
+        testComponent = new TestBuilder().build();
+        testComponent.inject(this);
         sessionManager.start();
     }
 
@@ -66,7 +71,7 @@ public class SessionManagerTest extends Assert {
 
     @NonNull
     private EndpointSession createUdpEndpointSession(UserEndpoint userEndpoint, NetworkEngine networkEngineMock) {
-        return new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(userEndpoint, networkEngineMock);
+        return testComponent.getSessionFactory().createSession(userEndpoint, networkEngineMock);
     }
 
     @NonNull

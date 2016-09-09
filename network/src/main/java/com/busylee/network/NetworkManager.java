@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import javax.inject.Inject;
+
 /**
  * Created by busylee on 03.08.16.
  */
@@ -36,6 +38,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())));
     }
 
+    @Inject
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         this.networkEngine = networkEngine;

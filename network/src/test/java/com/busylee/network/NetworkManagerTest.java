@@ -4,6 +4,8 @@ import android.os.HandlerThread;
 import android.os.Process;
 
 import com.busylee.network.message.Message;
+import com.busylee.network.module.Mocked;
+import com.busylee.network.module.TestBuilder;
 import com.busylee.network.session.EndpointSession;
 import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.UdpEndpointSession;
@@ -24,6 +26,9 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import static com.busylee.network.TConsts.GROUP_PEER_ID;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -38,27 +43,23 @@ import static org.mockito.Mockito.when;
 public class NetworkManagerTest {
 
     NetworkManager.Listener networkListenerMock;
+    @Inject
     NetworkManager networkManager;
-    NetworkEngine networkEngine;
-    HandlerThread pingThread;
-    HandlerThread sendingThread;
-    HandlerThread receivingThread;
-    UdpEngine udpEngineMock;
+    @Inject
     SessionManager sessionManager;
+    @Inject
+    NetworkEngine networkEngine;
+    @Inject @Named("sending")
+    HandlerThread sendingThread;
+    @Inject @Named("receiving")
+    HandlerThread receivingThread;
+    @Inject
+    UdpEngine udpEngineMock;
 
     @Before
     public void setup() {
-        pingThread
-                = new HandlerThread("PingThreadThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         networkListenerMock = mock(NetworkManager.Listener.class);
-        udpEngineMock = mock(UdpEngine.class);
-        sendingThread
-                = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        receivingThread
-                = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
-        sessionManager = new SessionManager(networkEngine, pingThread);
-        networkManager = new NetworkManager(networkEngine, sessionManager);
+        new TestBuilder().build().inject(this);
         networkManager.registerNetworkListener(networkListenerMock);
     }
 

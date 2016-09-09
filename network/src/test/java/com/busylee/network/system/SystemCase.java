@@ -76,7 +76,7 @@ public class SystemCase {
                                                 String address) throws UnknownHostException {
         UdpEngineFakeImpl udpEngineFake = new UdpEngineFakeImpl(tool, InetAddress.getByName(address));
         NetworkEngine networkEngine = new NetworkEngine(udpEngineFake, sendingThread, receivingThread);
-        SessionManager sessionManager = new SessionManager(networkEngine, sessionThread);
+        SessionManager sessionManager = new SessionManager(sessionThread);
         return new NetworkManager(networkEngine, sessionManager);
     }
 
