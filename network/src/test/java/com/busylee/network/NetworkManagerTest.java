@@ -33,6 +33,7 @@ import static com.busylee.network.TConsts.GROUP_PEER_ID;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +54,8 @@ public class NetworkManagerTest {
     HandlerThread sendingThread;
     @Inject @Named("receiving")
     HandlerThread receivingThread;
+    @Inject @Named("ping")
+    HandlerThread pingThread;
     @Inject
     UdpEngine udpEngineMock;
 
@@ -93,8 +96,9 @@ public class NetworkManagerTest {
         networkManager.start();
         TUtils.oneTask(receivingThread);
         TUtils.oneTask(receivingThread);
-        Assert.assertThat("Should contain only one peer",
-                networkManager.getAvailableEndpoints().size() == 1);
+        int size = networkManager.getAvailableEndpoints().size();
+        Assert.assertThat("Should contain only one peer, but size is " + size,
+                size == 1);
     }
 
     @Test
@@ -230,7 +234,7 @@ public class NetworkManagerTest {
 
     @Test
     public void shouldCallEndpointChangeListenerIfEndpointBecameUnavailable()
-            throws UnknownHostException, SocketException, SocketTimeoutException {
+            throws UnknownHostException, SocketException, SocketTimeoutException, InterruptedException {
         String address = "1.1.1.1";
         String id = "123124315refd";
         Message message = new Message.Builder()
@@ -239,9 +243,12 @@ public class NetworkManagerTest {
                 .setId(id)
                 .build();
         when(udpEngineMock.waitForNextMessage()).thenReturn(TUtils.toBytes(message));
+        networkManager.setEndpointLifeTime(300);
         networkManager.start();
         TUtils.oneTask(receivingThread);
-        TUtils.oneTask(receivingThread);
-
+        TUtils.oneTask(pingThread);
+        Thread.sleep(500);
+        TUtils.oneTask(pingThread);
+        verify(networkListenerMock, times(2)).onPeerChanged();
     }
 }

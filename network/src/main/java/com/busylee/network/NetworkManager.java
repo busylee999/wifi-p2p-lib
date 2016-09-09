@@ -1,5 +1,7 @@
 package com.busylee.network;
 
+import android.util.Log;
+
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.AbstractSession;
@@ -10,23 +12,28 @@ import com.busylee.network.session.UdpBroadcastSession;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 /**
  * Created by busylee on 03.08.16.
  */
-public class NetworkManager implements UdpBroadcastSession.EndPointListener, AbstractSession.SessionListener {
+public class NetworkManager implements UdpBroadcastSession.EndPointListener, AbstractSession.SessionListener, SessionManager.OnPingLoopListener {
 
-    public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 5 * 1000;
+    private static final String TAG = "NetworkManager";
+
+    public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 10 * 1000;
 
     private final NetworkEngine networkEngine;
     private final UdpBroadcastSession udpBroadcastSession;
@@ -34,7 +41,10 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     private final SessionFactory sessionFactory;
 
     private List<Endpoint> knownEndpoint = new ArrayList<>();
-    private List<Listener> listeners = new LinkedList<>();
+    private Map<String, Long> knownEndpointsLastActionTime = new HashMap<>();
+
+    private final Set<Listener> listeners = new HashSet<>();
+    private int endpointLifeTime = ENDPOINT_AVAILABLE_DEFAULT_TIME;
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
         this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())));
@@ -47,6 +57,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         this.udpBroadcastSession = sessionFactory.createSession(networkEngine);
         this.udpBroadcastSession.setEndpointListener(this);
         this.sessionManager = sessionManager;
+        this.sessionManager.setOnPingListener(this);
     }
 
     public List<Endpoint> getAvailableEndpoints() {
@@ -58,20 +69,42 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
         sessionManager.registerSession(sessionFactory.createSession(userEndpoint, networkEngine));
     }
 
+    private void updateEndpointExpiredTime(Endpoint endpoint) {
+        String id = getEndpointUUID(endpoint);
+        knownEndpointsLastActionTime.put(id, System.currentTimeMillis() + endpointLifeTime);
+    }
+
+    private String getEndpointUUID(Endpoint endpoint) {
+        String id = "";
+        if(endpoint instanceof UserEndpoint) {
+            id = ((UserEndpoint) endpoint).getAddress().toString() + "user";
+        }
+        if(endpoint instanceof GroupEndpoint) {
+            id = ((GroupEndpoint) endpoint).getId();
+        }
+        return id;
+    }
+
     @Override
-    public void onEndpointInfoReceived(Endpoint endpoint) {
-        if(!knownEndpoint.contains(endpoint)) {
-            knownEndpoint.add(endpoint);
-            if(listeners.size() > 0) {
-                synchronized (listeners) {
-                    for(Listener listener : listeners) {
-                        listener.onPeerChanged();
-                    }
+    public synchronized void onEndpointInfoReceived(Endpoint endpoint) {
+        synchronized (knownEndpoint) {
+            if(!knownEndpoint.contains(endpoint)) {
+                knownEndpoint.add(endpoint);
+                notifyListenersAboutPeersChanged();
+
+                if(endpoint instanceof GroupEndpoint) {
+                    createSession(endpoint);
                 }
             }
 
-            if(endpoint instanceof GroupEndpoint) {
-                createSession(((GroupEndpoint) endpoint));
+            updateEndpointExpiredTime(endpoint);
+        }
+    }
+
+    private void notifyListenersAboutPeersChanged() {
+        synchronized (listeners) {
+            for(Listener listener : listeners) {
+                listener.onPeerChanged();
             }
         }
     }
@@ -115,7 +148,9 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
 
     public void registerNetworkListener(Listener netListener) {
         if(netListener != null) {
-            this.listeners.add(netListener);
+            synchronized (listeners) {
+                this.listeners.add(netListener);
+            }
         }
     }
 
@@ -127,11 +162,13 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
 
     @Override
     public void onNewMessage(Endpoint endpoint, String data) {
-        if(listeners.size() > 0) {
-            synchronized (listeners) {
-                for(Listener listener : listeners) {
-                    listener.onMessageReceived(endpoint, data);
-                }
+        notifyListenersAboutNewMessage(endpoint, data);
+    }
+
+    private void notifyListenersAboutNewMessage(Endpoint endpoint, String data) {
+        synchronized (listeners) {
+            for(Listener listener : listeners) {
+                listener.onMessageReceived(endpoint, data);
             }
         }
     }
@@ -166,6 +203,37 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
                 .build();
 
         udpBroadcastSession.sendMessage(message);
+    }
+
+    void setEndpointLifeTime(int endpointLifeTime) {
+        this.endpointLifeTime = endpointLifeTime;
+    }
+
+    @Override
+    //TODO maybe we need to ocheck for open session
+    //TODO we need to move this code for session manager
+    public void pingLoop() {
+        synchronized (knownEndpoint) {
+            Iterator<Map.Entry<String, Long>> iterator = knownEndpointsLastActionTime.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Long> entry = iterator.next();
+                String endpointUUID = entry.getKey();
+                Long endpointExpiredTime = entry.getValue();
+                if(endpointExpiredTime < System.currentTimeMillis()) {
+                    Log.d(TAG, "peer seems to be expired");
+                    iterator.remove();
+                    Iterator<Endpoint> endpointIterator = knownEndpoint.iterator();
+                    while (endpointIterator.hasNext()) {
+                        Endpoint endpoint = endpointIterator.next();
+                        if(getEndpointUUID(endpoint).equals(endpointUUID)) {
+                            endpointIterator.remove();
+                            break;
+                        }
+                    }
+                    notifyListenersAboutPeersChanged();
+                }
+            }
+        }
     }
 
     public interface Listener {
