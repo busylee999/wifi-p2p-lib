@@ -23,26 +23,16 @@ import javax.inject.Named;
 public class SessionManager implements Handler.Callback {
 
     private static final String TAG = "SessionManager";
-    private OnPingLoopListener onPingListener;
 
-    public synchronized EndpointSession getSessionByEndpoint(Endpoint endpoint) {
-        for(EndpointSession abstractSession: sessionList) {
-            if(abstractSession.getEndpoint().equals(endpoint)) {
-                return abstractSession;
-            }
-        }
-        return null;
-    }
-
-    public void setOnPingListener(OnPingLoopListener onPingLoopListener) {
-        this.onPingListener = onPingLoopListener;
-    }
+    static final int PING_DEFAULT_DELAY = 500;
 
     enum State {
         Idle,
         Running,
         Stopped
     }
+
+    private OnPingLoopListener onPingListener;
 
     private final HandlerThread handlerThread;
     private List<EndpointSession> sessionList = new ArrayList<>();
@@ -56,12 +46,25 @@ public class SessionManager implements Handler.Callback {
 
     @Inject
     public SessionManager(@Named("ping") HandlerThread handlerThread) {
-        this(handlerThread, 500);
+        this(handlerThread, PING_DEFAULT_DELAY);
     }
 
     SessionManager(HandlerThread handlerThread, int delay) {
         this.handlerThread = handlerThread;
         this.delay = delay;
+    }
+
+    public synchronized EndpointSession getSessionByEndpoint(Endpoint endpoint) {
+        for(EndpointSession abstractSession: sessionList) {
+            if(abstractSession.getEndpoint().equals(endpoint)) {
+                return abstractSession;
+            }
+        }
+        return null;
+    }
+
+    public void setOnPingListener(OnPingLoopListener onPingLoopListener) {
+        this.onPingListener = onPingLoopListener;
     }
 
     public synchronized boolean registerSession(EndpointSession abstractSession) {

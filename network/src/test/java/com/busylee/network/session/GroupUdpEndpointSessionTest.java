@@ -100,4 +100,5 @@ public class GroupUdpEndpointSessionTest {
         Assert.assertEquals("Should go to correct cllosed state after close",
                 EndpointSession.EState.Closed, udpEndpointSession.getState());
     }
+
 }
