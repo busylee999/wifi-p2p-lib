@@ -13,6 +13,14 @@ public class TLoop {
 
     private List<HandlerThread> handlerThreads = new ArrayList<>();
 
+    public TLoop add(HandlerThread... handlerThread) {
+        for (HandlerThread thread : handlerThread) {
+            add(thread);
+        }
+
+        return this;
+    }
+
     public TLoop add(HandlerThread handlerThread) {
         if(!handlerThreads.contains(handlerThread)) {
             handlerThreads.add(handlerThread);

@@ -18,7 +18,7 @@ public class GroupEndpoint extends Endpoint {
 
     @Override
     public String toString() {
-        return "UserEndpoint{id=" + id +"}";
+        return "GroupEndpoint{id=" + id +"}";
     }
 
     @Override

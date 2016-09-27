@@ -106,7 +106,7 @@ public class SystemCase {
         }
     }
 
-    class FakeDisturbingTool {
+    public static class FakeDisturbingTool {
         List<UdpEngineFakeImpl> udpEngineFakes = new ArrayList<>();
 
         void register(UdpEngineFakeImpl udpEngineFake) {
@@ -120,7 +120,7 @@ public class SystemCase {
         }
     }
 
-    class UdpEngineFakeImpl implements UdpEngine {
+    public static class UdpEngineFakeImpl implements UdpEngine {
 
         final Queue<byte[]> messagesQueue;
         final FakeDisturbingTool fake;
@@ -128,7 +128,7 @@ public class SystemCase {
         final Lock lock;
         private final Condition condition;
 
-        UdpEngineFakeImpl(FakeDisturbingTool fake, InetAddress address) {
+        public UdpEngineFakeImpl(FakeDisturbingTool fake, InetAddress address) {
             messagesQueue = new ArrayDeque<>();
             this.address = address;
             this.fake = fake;

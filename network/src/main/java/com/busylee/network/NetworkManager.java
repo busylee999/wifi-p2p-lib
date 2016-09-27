@@ -33,7 +33,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
 
     private static final String TAG = "NetworkManager";
 
-    public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 10 * 1000;
+    public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 4 * 60 * 1000;
 
     private final NetworkEngine networkEngine;
     private final UdpBroadcastSession udpBroadcastSession;
