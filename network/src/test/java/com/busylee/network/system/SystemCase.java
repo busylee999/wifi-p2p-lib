@@ -9,6 +9,7 @@ import com.busylee.network.session.SessionManager;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
+import com.busylee.network.utils.AndroidLogger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,8 +76,8 @@ public class SystemCase {
                                                 FakeDisturbingTool tool,
                                                 String address) throws UnknownHostException {
         UdpEngineFakeImpl udpEngineFake = new UdpEngineFakeImpl(tool, InetAddress.getByName(address));
-        NetworkEngine networkEngine = new NetworkEngine(udpEngineFake, sendingThread, receivingThread);
-        SessionManager sessionManager = new SessionManager(sessionThread);
+        NetworkEngine networkEngine = new NetworkEngine(udpEngineFake, sendingThread, receivingThread, new AndroidLogger());
+        SessionManager sessionManager = new SessionManager(sessionThread, new AndroidLogger());
         return new NetworkManager(networkEngine, sessionManager);
     }
 

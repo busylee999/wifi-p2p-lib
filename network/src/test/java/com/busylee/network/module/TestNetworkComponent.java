@@ -13,6 +13,7 @@ import dagger.Component;
  */
 @Singleton
 @Component(modules = {
+        MainModule.class,
         UdpModuleMock.class,
         SessionModule.class,
         SessionModuleMock.class,

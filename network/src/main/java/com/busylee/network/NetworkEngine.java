@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.busylee.network.module.HandlerThreadModule;
 import com.busylee.network.udp.UdpEngine;
+import com.busylee.network.utils.AndroidLogger;
 
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -43,25 +44,31 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     private Handler listenerHandler = new Handler(Looper.getMainLooper());
 
     private UdpEngine udpEngine;
+    private final Logger logger;
 
     public NetworkEngine(UdpEngine udpEngine) {
+        this(udpEngine, new AndroidLogger());
+    }
+
+    public NetworkEngine(UdpEngine udpEngine, Logger logger) {
         this(udpEngine, new HandlerThreadModule().provideSensingThread()
-                , new HandlerThreadModule().provideReceivingThread());
+                , new HandlerThreadModule().provideReceivingThread(), logger);
     }
 
     @Inject
     public NetworkEngine(UdpEngine udpEngine,
                          @Named("sending") HandlerThread sendMessageThread,
-                         @Named("receiving") HandlerThread receiveThread) {
+                         @Named("receiving") HandlerThread receiveThread, Logger logger) {
         this.sendMessageThread = sendMessageThread;
         this.receiveThread = receiveThread;
         this.udpEngine = udpEngine;
+        this.logger = logger;
     }
 
     public void start() {
-        Log.d(TAG, "start()");
+        logger.d(TAG, "start()");
         if(mState == State.Running) {
-            Log.w(TAG, "start() already starting");
+            logger.w(TAG, "start() already starting");
             return;
         }
 
@@ -80,9 +87,9 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     }
 
     public void stop() {
-        Log.d(TAG, "stop()");
+        logger.d(TAG, "stop()");
         if(mState != State.Running) {
-            Log.w(TAG, "start() not running");
+            logger.w(TAG, "start() not running");
             return;
         }
 
@@ -101,7 +108,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     }
 
     private void postToListener(final byte[] message) {
-        Log.d(TAG, "postToListener()");
+        logger.d(TAG, "postToListener()");
         if(listenerHandler != null) {
             listenerHandler.post(new Runnable() {
                 @Override
@@ -114,7 +121,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     }
 
     private void startWaiting() {
-        Log.d(TAG, "startWaiting()");
+        logger.d(TAG, "startWaiting()");
         receivingHandler.removeMessages(WAIT_NEXT_MESSAGE);
         Message waitMessage = new Message();
         waitMessage.what = WAIT_NEXT_MESSAGE;
@@ -122,26 +129,26 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
     }
 
     private void onWaitMessage() {
-        Log.d(TAG, "onWaitMessage()");
+        logger.d(TAG, "onWaitMessage()");
         if(mState == State.Running) {
             try {
                 byte[] bytes = udpEngine.waitForNextMessage();
                 startWaiting();
                 if(bytes != null) {
-                    Log.w(TAG, "onWaitMessage() message is " + new String(bytes));
+                    logger.w(TAG, "onWaitMessage() message is " + new String(bytes));
                     postToListener(bytes);
                 } else {
-                    Log.w(TAG, "onWaitMessage() message is null");
+                    logger.w(TAG, "onWaitMessage() message is null");
                 }
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
-                Log.d(TAG, "onWaitMessage() timeout waiting message");
+                logger.d(TAG, "onWaitMessage() timeout waiting message");
             } catch (SocketException e) {
                 e.printStackTrace();
-                Log.d(TAG, "onWaitMessage() error waiting message");
+                logger.d(TAG, "onWaitMessage() error waiting message");
             }
         } else {
-            Log.d(TAG, "onWaitMessage() state is not Running");
+            logger.d(TAG, "onWaitMessage() state is not Running");
         }
     }
 
@@ -151,10 +158,10 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
                 udpEngine.sendMessage(message);
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d(TAG, "onSendMessage() error during send message");
+                logger.d(TAG, "onSendMessage() error during send message");
             }
         } else {
-            Log.d(TAG, "onSendMessage() state is not Running");
+            logger.d(TAG, "onSendMessage() state is not Running");
         }
     }
 
@@ -187,7 +194,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
         if(mState == State.Running) {
             sendingHandler.sendMessageDelayed(sendMessage, delay);
         } else {
-            Log.e(TAG, "sendMessageBroadcast() state is not Running");
+            logger.e(TAG, "sendMessageBroadcast() state is not Running");
         }
     }
 

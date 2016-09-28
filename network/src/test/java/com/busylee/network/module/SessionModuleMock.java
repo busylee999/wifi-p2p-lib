@@ -2,6 +2,7 @@ package com.busylee.network.module;
 
 import android.os.HandlerThread;
 
+import com.busylee.network.Logger;
 import com.busylee.network.session.SessionManager;
 
 import javax.inject.Named;
@@ -18,8 +19,8 @@ public class SessionModuleMock {
 
     @Provides @Singleton
     public SessionManager provideSessionManager(
-            @Named("ping") HandlerThread pingThread) {
-        return new SessionManager(pingThread);
+            @Named("ping") HandlerThread pingThread, Logger logger) {
+        return new SessionManager(pingThread, logger);
     }
 
 }

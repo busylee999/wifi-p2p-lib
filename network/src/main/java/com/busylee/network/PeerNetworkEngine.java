@@ -4,6 +4,7 @@ import android.os.HandlerThread;
 
 import com.busylee.network.message.Message;
 import com.busylee.network.udp.UdpEngine;
+import com.busylee.network.utils.AndroidLogger;
 
 import java.net.InetAddress;
 
@@ -21,7 +22,7 @@ public class PeerNetworkEngine extends NetworkEngine {
     }
 
     public PeerNetworkEngine(int authDelay, UdpEngine udpEngine, HandlerThread sendMessageThread, HandlerThread receiveThread) {
-        super(udpEngine, sendMessageThread, receiveThread);
+        super(udpEngine, sendMessageThread, receiveThread, new AndroidLogger());
         this.authDelay = authDelay;
     }
 

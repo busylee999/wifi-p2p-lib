@@ -1,9 +1,11 @@
 package com.busylee.network.module;
 
+import com.busylee.network.Logger;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.NetworkManager;
 import com.busylee.network.session.SessionFactory;
 import com.busylee.network.session.SessionManager;
+import com.busylee.network.utils.AndroidLogger;
 
 import dagger.Module;
 import dagger.Provides;
@@ -14,9 +16,9 @@ import dagger.Provides;
 @Module
 public class MainModule {
 
-//    @Provides
-//    public NetworkManager providesNetworkManager(
-//            NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory) {
-//        return new NetworkManager(networkEngine, sessionManager, sessionFactory);
-//    }
+    @Provides
+    public Logger providesLogger() {
+        return new AndroidLogger();
+    }
+
 }

@@ -1,7 +1,5 @@
 package com.busylee.network;
 
-import android.util.Log;
-
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.AbstractSession;
@@ -12,6 +10,7 @@ import com.busylee.network.session.UdpBroadcastSession;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
+import com.busylee.network.utils.AndroidLogger;
 import com.google.gson.GsonBuilder;
 
 import java.net.InetAddress;
@@ -36,6 +35,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     public final int ENDPOINT_AVAILABLE_DEFAULT_TIME = 4 * 60 * 1000;
 
     private final NetworkEngine networkEngine;
+    private final Logger logger;
     private final UdpBroadcastSession udpBroadcastSession;
     private final SessionManager sessionManager;
     private final SessionFactory sessionFactory;
@@ -47,13 +47,18 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     private int endpointLifeTime = ENDPOINT_AVAILABLE_DEFAULT_TIME;
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager) {
-        this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())));
+        this(networkEngine, sessionManager, new AndroidLogger());
+    }
+
+    public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, Logger logger) {
+        this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())), logger);
     }
 
     @Inject
-    public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory) {
+    public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, SessionFactory sessionFactory, Logger logger) {
         this.sessionFactory = sessionFactory;
         this.networkEngine = networkEngine;
+        this.logger = logger;
         this.udpBroadcastSession = sessionFactory.createSession(networkEngine);
         this.udpBroadcastSession.setEndpointListener(this);
         this.sessionManager = sessionManager;
@@ -220,7 +225,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
                 String endpointUUID = entry.getKey();
                 Long endpointExpiredTime = entry.getValue();
                 if(endpointExpiredTime < System.currentTimeMillis()) {
-                    Log.d(TAG, "peer seems to be expired");
+                    logger.d(TAG, "peer seems to be expired");
                     iterator.remove();
                     Iterator<Endpoint> endpointIterator = knownEndpoint.iterator();
                     while (endpointIterator.hasNext()) {

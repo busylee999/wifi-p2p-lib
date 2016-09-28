@@ -12,6 +12,7 @@ import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
+import com.busylee.network.utils.AndroidLogger;
 import com.google.gson.GsonBuilder;
 
 import org.junit.Assert;
@@ -55,7 +56,7 @@ public class UserUdpEndpointSessionTest {
                 = new HandlerThread("SendingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
         receivingThread
                 = new HandlerThread("ReceivingThreadTest", Process.THREAD_PRIORITY_BACKGROUND);
-        networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread);
+        networkEngine = new NetworkEngine(udpEngineMock, sendingThread, receivingThread, new AndroidLogger());
         udpEndpointSession = createEndpointSession();
         udpEndpointSession.setSessionListener(sessionListenerMock);
         networkEngine.start();

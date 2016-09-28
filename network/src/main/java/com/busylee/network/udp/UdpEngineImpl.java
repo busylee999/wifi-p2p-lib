@@ -15,6 +15,9 @@ import java.util.List;
 
 import android.util.Log;
 
+import com.busylee.network.Logger;
+import com.busylee.network.utils.AndroidLogger;
+
 import javax.inject.Inject;
 
 /**
@@ -29,12 +32,17 @@ public class UdpEngineImpl implements UdpEngine {
 
     // TODO: Vary the challenge, or it's not much of a challenge :)
     private static final String mChallenge = "myvoice";
+    private final Logger logger;
 
     private DatagramSocket mSocket;
 
-    @Inject
     public UdpEngineImpl() {
+        this(new AndroidLogger());
+    }
 
+    @Inject
+    public UdpEngineImpl(Logger logger) {
+        this.logger = logger;
     }
 
     @Override
@@ -43,18 +51,18 @@ public class UdpEngineImpl implements UdpEngine {
             DatagramSocket socket = getSocket();
             return tryListenForString(socket);
         } catch (SocketException e) {
-            Log.e(TAG, "Socket creation error", e);
+            logger.e(TAG, "Socket creation error", e);
         } catch (SocketTimeoutException e) {
             throw e;
         } catch (IOException e) {
-            Log.e(TAG, "Input/Output exception occured", e);
+            logger.e(TAG, "Input/Output exception occured", e);
         }
         return null;
     }
 
     @Override
     public boolean sendMessage(byte[] message) throws SocketException {
-        Log.d(TAG, "Sending message " + message);
+        logger.d(TAG, "Sending message " + message);
         try {
             DatagramSocket socket = getSocket();
 
@@ -68,9 +76,9 @@ public class UdpEngineImpl implements UdpEngine {
             socket.send(packet);
             return true;
         } catch (SocketException e) {
-            Log.e(TAG, "Socket creation error", e);
+            logger.e(TAG, "Socket creation error", e);
         }  catch (IOException e) {
-            Log.e(TAG, "Input/Output exception occured", e);
+            logger.e(TAG, "Input/Output exception occured", e);
         }
         return false;
     }
@@ -123,7 +131,7 @@ public class UdpEngineImpl implements UdpEngine {
             }
 
         } catch (SocketException ex) {
-            Log.e(TAG, ex.toString());
+            logger.e(TAG, ex.toString());
         }
         return myAddr;
     }
@@ -140,13 +148,13 @@ public class UdpEngineImpl implements UdpEngine {
                 for (InterfaceAddress inetAddress : addresses)
                     iAddr = inetAddress.getBroadcast();
 
-                Log.d(TAG, "iAddr=" + iAddr);
+                logger.d(TAG, "iAddr=" + iAddr);
                 return iAddr;
 
             } catch (SocketException e) {
 
                 e.printStackTrace();
-                Log.d(TAG, "getBroadcast" + e.getMessage());
+                logger.d(TAG, "getBroadcast" + e.getMessage());
             }
         }
 

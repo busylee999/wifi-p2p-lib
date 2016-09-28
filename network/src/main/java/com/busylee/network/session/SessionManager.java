@@ -5,8 +5,10 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 
+import com.busylee.network.Logger;
 import com.busylee.network.module.HandlerThreadModule;
 import com.busylee.network.session.endpoint.Endpoint;
+import com.busylee.network.utils.AndroidLogger;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,6 +27,7 @@ public class SessionManager implements Handler.Callback {
     private static final String TAG = "SessionManager";
 
     static final int PING_DEFAULT_DELAY = 500;
+    private final Logger logger;
 
     enum State {
         Idle,
@@ -41,15 +44,21 @@ public class SessionManager implements Handler.Callback {
     private State mState = State.Idle;
 
     public SessionManager() {
-        this(new HandlerThreadModule().providePingThread());
+        this(new AndroidLogger());
+    }
+    
+    public SessionManager(Logger logger) {
+        this(new HandlerThreadModule().providePingThread(), logger);
+        
     }
 
     @Inject
-    public SessionManager(@Named("ping") HandlerThread handlerThread) {
-        this(handlerThread, PING_DEFAULT_DELAY);
+    public SessionManager(@Named("ping") HandlerThread handlerThread, Logger logger) {
+        this(handlerThread, logger, PING_DEFAULT_DELAY);
     }
 
-    SessionManager(HandlerThread handlerThread, int delay) {
+    SessionManager(HandlerThread handlerThread, Logger logger, int delay) {
+        this.logger = logger;
         this.handlerThread = handlerThread;
         this.delay = delay;
     }
@@ -72,7 +81,7 @@ public class SessionManager implements Handler.Callback {
             return sessionList.add(abstractSession);
         }
 
-        Log.w(TAG, "Session already in list session = " + abstractSession);
+        logger.w(TAG, "Session already in list session = " + abstractSession);
 
         return false;
     }
@@ -110,9 +119,9 @@ public class SessionManager implements Handler.Callback {
     }
 
     public void start() {
-        Log.d(TAG, "start()");
+        logger.d(TAG, "start()");
         if(mState == State.Running) {
-            Log.w(TAG, "start() already starting");
+            logger.w(TAG, "start() already starting");
             return;
         }
 
@@ -127,9 +136,9 @@ public class SessionManager implements Handler.Callback {
     }
 
     public void stop() {
-        Log.d(TAG, "stop()");
+        logger.d(TAG, "stop()");
         if(mState != State.Running) {
-            Log.w(TAG, "start() not running");
+            logger.w(TAG, "start() not running");
             return;
         }
 
