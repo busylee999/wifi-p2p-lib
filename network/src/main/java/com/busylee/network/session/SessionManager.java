@@ -27,7 +27,7 @@ public class SessionManager implements Handler.Callback {
 
     private static final String TAG = "SessionManager";
 
-    static final int PING_DEFAULT_DELAY = 500;
+    static final int PING_DEFAULT_DELAY = 5 * 1000; //5 sec
     private final Logger logger;
 
     enum State {

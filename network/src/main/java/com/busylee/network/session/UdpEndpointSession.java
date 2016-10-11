@@ -12,7 +12,7 @@ import com.busylee.network.session.endpoint.Endpoint;
  * Created by busylee on 04.08.16.
  */
 public abstract class UdpEndpointSession extends EndpointSession implements SerializationListener {
-    static final int DEFAULT_EXPIRED_BOUND = 5 * 1000; //5 sec
+    static final int DEFAULT_EXPIRED_BOUND = 11 * 1000; //11 sec
     protected final NetworkEngine networkEngine;
     private final SerializationContext serializationContext;
     private final Endpoint endpoint;
