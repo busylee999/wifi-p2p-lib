@@ -7,7 +7,7 @@ public class TestBuilder {
 
     public TestNetworkComponent build() {
         return DaggerTestNetworkComponent.builder()
-                .mainModule(new MainModule())
+                .loggerModule(new LoggerModule())
                 .gsonModule(new GsonModule())
                 .udpModuleMock(new UdpModuleMock())
                 .sessionModule(new SessionModule())
