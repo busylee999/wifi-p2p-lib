@@ -18,6 +18,7 @@ import java.util.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Created by busylee on 30.07.16.
@@ -55,7 +56,7 @@ public class NetworkEngine extends Observable implements Network, Handler.Callba
                 , new HandlerThreadModule().provideReceivingThread(), logger);
     }
 
-    @Inject
+    @Inject @Singleton
     public NetworkEngine(UdpEngine udpEngine,
                          @Named("sending") HandlerThread sendMessageThread,
                          @Named("receiving") HandlerThread receiveThread, Logger logger) {

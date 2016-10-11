@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 
 /**
@@ -52,7 +53,7 @@ public class SessionManager implements Handler.Callback {
         
     }
 
-    @Inject
+    @Inject @Singleton
     public SessionManager(@Named("ping") HandlerThread handlerThread, Logger logger) {
         this(handlerThread, logger, PING_DEFAULT_DELAY);
     }
