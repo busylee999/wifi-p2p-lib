@@ -5,6 +5,7 @@ import com.busylee.network.NetworkEngine;
 import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
+import com.busylee.network.utils.LoggerChain;
 import com.google.gson.GsonBuilder;
 
 import org.junit.Before;
@@ -27,7 +28,7 @@ public class SessionFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        sessionFactory = new SessionFactory(new Base64Context(new GsonBuilder().create()));
+        sessionFactory = new SessionFactory(new Base64Context(new GsonBuilder().create()), LoggerChain.empty());
         networkEngine = mock(NetworkEngine.class);
         userEndpoint = mock(UserEndpoint.class);
         groupEndpoint = mock(GroupEndpoint.class);

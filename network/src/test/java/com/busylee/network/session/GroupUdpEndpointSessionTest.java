@@ -9,6 +9,7 @@ import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.testutils.TUtils;
+import com.busylee.network.utils.LoggerChain;
 import com.google.gson.GsonBuilder;
 
 import org.bouncycastle.jce.provider.symmetric.ARC4;
@@ -45,7 +46,10 @@ public class GroupUdpEndpointSessionTest {
         sessionListenerMock = mock(AbstractSession.SessionListener.class);
         groupEndpoint = TConsts.GROUP_ENDPOINT;
         networkEngineMock = mock(NetworkEngine.class);
-        udpEndpointSession = new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(groupEndpoint, networkEngineMock);
+        SessionFactory sessionFactory = new SessionFactory(
+                new Base64Context(new GsonBuilder().create()), LoggerChain.empty());
+        udpEndpointSession = (GroupUdpEndpointSession) sessionFactory
+                        .createSession(groupEndpoint, networkEngineMock);
         udpEndpointSession.setSessionListener(sessionListenerMock);
         networkEngineMock.start();
 
@@ -90,7 +94,7 @@ public class GroupUdpEndpointSessionTest {
     @Test
     public void shouldExpiredSimultaneously() {
         udpEndpointSession =
-                new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, new Base64Context(new GsonBuilder().create()), 0);
+                new GroupUdpEndpointSession(TConsts.GROUP_ENDPOINT, networkEngineMock, new Base64Context(new GsonBuilder().create()), LoggerChain.empty(), 0);
         Assert.assertTrue("Should be expired", udpEndpointSession.isExpired());
     }
 

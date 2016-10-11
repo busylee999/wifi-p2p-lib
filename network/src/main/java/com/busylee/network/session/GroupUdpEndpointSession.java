@@ -2,6 +2,7 @@ package com.busylee.network.session;
 
 import android.util.Log;
 
+import com.busylee.network.Logger;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
@@ -21,19 +22,22 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     private final GroupEndpoint groupEndpoint;
     private final long expiredBound;
     private final Gson gson;
+    private final Logger logger;
     private long lastActionTime;
 
     GroupUdpEndpointSession(GroupEndpoint groupEndpoint,
                             NetworkEngine networkEngine,
-                            SerializationContext serializationContext) {
-        this(groupEndpoint, networkEngine, serializationContext, DEFAULT_EXPIRED_BOUND);
+                            SerializationContext serializationContext, Logger logger) {
+        this(groupEndpoint, networkEngine, serializationContext, logger, DEFAULT_EXPIRED_BOUND);
     }
 
     GroupUdpEndpointSession(GroupEndpoint groupEndpoint,
                             NetworkEngine networkEngine,
                             SerializationContext serializationContext,
+                            Logger logger,
                             long expiredBound) {
         super(groupEndpoint, networkEngine, serializationContext);
+        this.logger = logger;
         this.groupEndpoint = groupEndpoint;
         this.expiredBound = expiredBound;
         this.gson = new GsonBuilder().create();
@@ -46,7 +50,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
 
     @Override
     public void ping() {
-        //TODO
+        logger.d(TAG, "ping => " + groupEndpoint.toString());
     }
 
     @Override

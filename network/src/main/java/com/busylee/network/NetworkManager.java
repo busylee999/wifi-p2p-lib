@@ -51,7 +51,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     }
 
     public NetworkManager(NetworkEngine networkEngine, SessionManager sessionManager, Logger logger) {
-        this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create())), logger);
+        this(networkEngine, sessionManager, new SessionFactory(new Base64Context(new GsonBuilder().create()), logger), logger);
     }
 
     @Inject
@@ -167,6 +167,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
 
     @Override
     public void onNewMessage(Endpoint endpoint, String data) {
+        logger.d(TAG, data);
         notifyListenersAboutNewMessage(endpoint, data);
     }
 
@@ -179,6 +180,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
     }
 
     public boolean sendMessage(Endpoint endpoint, String message) {
+        logger.d(TAG, message);
         EndpointSession session = sessionManager.getSessionByEndpoint(endpoint);
         if(session == null && !knownEndpoint.contains(endpoint)) {
             return false;

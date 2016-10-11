@@ -1,5 +1,6 @@
 package com.busylee.network.module;
 
+import com.busylee.network.Logger;
 import com.busylee.network.serialization.Base64Context;
 import com.busylee.network.session.SessionFactory;
 
@@ -13,8 +14,8 @@ import dagger.Provides;
 public class SessionModule {
 
     @Provides
-    public SessionFactory provideSessionFactory(Base64Context base64Context) {
-        return new SessionFactory(base64Context);
+    public SessionFactory provideSessionFactory(Base64Context base64Context, Logger logger) {
+        return new SessionFactory(base64Context, logger);
     }
 
 }

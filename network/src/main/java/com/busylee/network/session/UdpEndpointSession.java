@@ -1,25 +1,23 @@
 package com.busylee.network.session;
 
+import com.busylee.network.Logger;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
 import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
 
-import java.util.Observer;
-
 
 /**
  * Created by busylee on 04.08.16.
  */
 public abstract class UdpEndpointSession extends EndpointSession implements SerializationListener {
-
     static final int DEFAULT_EXPIRED_BOUND = 5 * 1000; //5 sec
     protected final NetworkEngine networkEngine;
     private final SerializationContext serializationContext;
     private final Endpoint endpoint;
     protected SessionListener sessionListener;
-    private EState mCurrentState;
+    private EState state;
 
     public UdpEndpointSession(Endpoint endpoint, NetworkEngine networkEngine, SerializationContext serializationContext) {
         this.endpoint = endpoint;
@@ -28,19 +26,19 @@ public abstract class UdpEndpointSession extends EndpointSession implements Seri
         this.serializationContext.setListener(this);
         this.networkEngine.addObserver(serializationContext);
         //TODO think about it
-        mCurrentState = EState.Established;
+        state = EState.Established;
     }
 
     public abstract void ping();
 
     @Override
     public EState getState() {
-        return mCurrentState;
+        return state;
     }
 
     @Override
     public void close() {
-        mCurrentState = EState.Closed;
+        state = EState.Closed;
     }
 
     @Override

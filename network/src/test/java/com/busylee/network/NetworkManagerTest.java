@@ -241,4 +241,9 @@ public class NetworkManagerTest {
         loop.loop(2);
         verify(networkListenerMock, times(2)).onPeerChanged();
     }
+
+    @Test
+    public void shouldSendingPingMessagesForCreatedPeer() {
+
+    }
 }

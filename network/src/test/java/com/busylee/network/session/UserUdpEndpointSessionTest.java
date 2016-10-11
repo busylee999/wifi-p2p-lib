@@ -13,6 +13,7 @@ import com.busylee.network.session.endpoint.UserEndpoint;
 import com.busylee.network.testutils.TUtils;
 import com.busylee.network.udp.UdpEngine;
 import com.busylee.network.utils.AndroidLogger;
+import com.busylee.network.utils.LoggerChain;
 import com.google.gson.GsonBuilder;
 
 import org.junit.Assert;
@@ -80,7 +81,7 @@ public class UserUdpEndpointSessionTest {
 
     @NonNull
     private UserUdpEndpointSession createEndpointSession() {
-        return new SessionFactory(new Base64Context(new GsonBuilder().create())).createSession(userEndpoint, networkEngine);
+        return new SessionFactory(new Base64Context(new GsonBuilder().create()), LoggerChain.empty()).createSession(userEndpoint, networkEngine);
     }
 
     @Test
