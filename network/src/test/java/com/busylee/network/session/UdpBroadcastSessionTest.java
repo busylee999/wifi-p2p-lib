@@ -68,7 +68,7 @@ public class UdpBroadcastSessionTest {
     public void shouldNotifyEndPointListenerAboutPeer() throws UnknownHostException, SocketException, SocketTimeoutException {
         UdpBroadcastSession.EndPointListener endPointListenerMock = mock(UdpBroadcastSession.EndPointListener.class);
         final Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setId("id")
                 .setAddressFrom("1.1.1.1")
                 .build();

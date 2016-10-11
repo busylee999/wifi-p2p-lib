@@ -44,7 +44,7 @@ public class PeerNetworkEngine extends NetworkEngine {
             InetAddress inetAddress = getIpAddress();
             if(inetAddress != null) {
                 Message message = new Message.Builder()
-                        .setCommand(Message.Command.PEER)
+                        .setCommand(Message.Command.PING)
                         .setAddressFrom(inetAddress)
                         .build();
                 //TODO think about it

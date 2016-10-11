@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 public class Message {
 
     public static class Command {
-        public static final String PEER = "PEER";
+        public static final String PING = "PING";
         public static final String INVITE = "INVITE";
         public static final String DATA = "DATA";
     }

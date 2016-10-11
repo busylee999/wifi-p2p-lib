@@ -50,7 +50,11 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
 
     @Override
     public void ping() {
-        logger.d(TAG, "ping => " + groupEndpoint.toString());
+        Message message = new Message.Builder()
+                .setId(groupEndpoint.getId())
+                .setCommand(Message.Command.PING)
+                .build();
+        sendMessage(message);
     }
 
     @Override
@@ -61,6 +65,12 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
                 .setData(stringMessage)
                 .build();
         sendMessage(message);
+    }
+
+    @Override
+    public void sendMessage(Message message) {
+        logger.d(TAG, "sendMessage " + message.getCommand());
+        super.sendMessage(message);
     }
 
     @Override

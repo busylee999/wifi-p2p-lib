@@ -2,7 +2,6 @@ package com.busylee.network.session;
 
 import android.util.Log;
 
-import com.busylee.network.Network;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
@@ -10,7 +9,6 @@ import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
-import com.google.gson.GsonBuilder;
 
 import java.util.Observable;
 
@@ -84,7 +82,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
             return;
         }
         switch (message.getCommand()) {
-            case PEER:
+            case PING:
                 if(mEndpointListener != null) {
                     Endpoint endpoint = null;
                     if(message.getAddressFrom() != null) {

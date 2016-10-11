@@ -205,7 +205,7 @@ public class NetworkManager implements UdpBroadcastSession.EndPointListener, Abs
 
     public void createGroup(String peerId) {
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setId(String.valueOf(peerId))
                 .build();
 

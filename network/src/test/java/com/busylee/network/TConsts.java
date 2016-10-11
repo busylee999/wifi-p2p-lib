@@ -34,7 +34,7 @@ public class TConsts {
         }
 
         GROUP_PEER_MESSAGE = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setId(String.valueOf(GROUP_PEER_ID))
                 .build();
         GROUP_DATA_MESSAGE = new Message.Builder()

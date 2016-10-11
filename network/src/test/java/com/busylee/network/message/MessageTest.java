@@ -46,13 +46,13 @@ public class MessageTest {
         expectedFullMessage = "{" +
                 "\"addressTo\":\"1.1.1.1\"," +
                 "\"id\":\"id\"," +
-                "\"command\":\"PEER\"," +
+                "\"command\":\"PING\"," +
                 "\"data\":\"testMessage\"}";
         Message message = new Message.Builder()
                 .setAddressTo(address)
                 .setId(id)
                 .setData(data)
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .build();
 
         Assert.assertEquals(expectedFullMessage, message.toString());

@@ -63,7 +63,7 @@ public class NetworkManagerTest {
         String id = "123124315refd";
         UserEndpoint userEndpoint = new UserEndpoint(id, InetAddress.getByName(address));
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
@@ -79,7 +79,7 @@ public class NetworkManagerTest {
         String address = "1.1.1.1";
         String id = "123124315refd";
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
@@ -106,7 +106,7 @@ public class NetworkManagerTest {
         String address = "1.1.1.1";
         String id = "123124315refd";
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setAddressFrom(address)
                 .setId(id)
                 .build();
@@ -211,7 +211,7 @@ public class NetworkManagerTest {
     @Test
     public void shouldSendPeerInfo() throws SocketException {
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setId(String.valueOf(GROUP_PEER_ID))
                 .build();
         networkManager.start();
@@ -226,7 +226,7 @@ public class NetworkManagerTest {
         String address = "1.1.1.1";
         String id = "123124315refd";
         Message message = new Message.Builder()
-                .setCommand(Message.Command.PEER)
+                .setCommand(Message.Command.PING)
                 .setAddressFrom(address)
                 .setId(id)
                 .build();

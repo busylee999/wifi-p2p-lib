@@ -48,7 +48,7 @@ public class PeerNetworkEngineTest {
     public void shouldSendPeerInfo() throws SocketException, UnknownHostException {
         final InetAddress fakeAddress = InetAddress.getByName("1.1.1.1");
         final String expectedMessage =
-                "{\"addressFrom\":\"1.1.1.1\",\"command\":\"PEER\"}";
+                "{\"addressFrom\":\"1.1.1.1\",\"command\":\"PING\"}";
         when(udpEngineMock.getIpAddress()).thenReturn(fakeAddress);
         TUtils.oneTask(sendingThread);
         verify(udpEngineMock, times(1)).sendMessage(TUtils.toBytes(expectedMessage));

@@ -105,4 +105,13 @@ public class GroupUdpEndpointSessionTest {
                 EndpointSession.EState.Closed, udpEndpointSession.getState());
     }
 
+    @Test
+    public void shouldSendPingMessage() {
+        String expectedMessage = "{\"id\":\"" + TConsts.GROUP_PEER_ID + "\"," +
+                "\"command\":\"PING\"}";
+        udpEndpointSession.ping();
+        verify(networkEngineMock).sendMessageBroadcast(
+                TUtils.toBytes(expectedMessage));
+    }
+
 }
