@@ -2,23 +2,19 @@ package com.busylee.network.serialization;
 
 import android.util.Base64;
 
+import com.busylee.network.Assert;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.hamcrest.Matchers;
+import org.hamcrest.core.IsEqual;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.robolectric.RobolectricTestRunner;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.refEq;
+import static com.busylee.network.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Created by busylee on 01.09.16.
@@ -52,54 +48,32 @@ public class Base64ContextTest {
     }
 
     @Test
-    public void shouldCallNetwork() {
+    public void shouldDeserialize() {
         String data = "test";
-        Message message = getDataMessage(data);
-        base64Context.sendMessage(networkEngineMock, message);
-        byte[] expectedBytes = getDataMessageBytes(data);
-
-        verify(networkEngineMock).sendMessageBroadcast(expectedBytes);
+        Message actualMessage = base64Context.deserialize(getDataMessageBytes(data));
+        final Message expectedMessage = getDataMessage(data);
+        assertEquals(expectedMessage.toString(), actualMessage.toString());
     }
 
     @Test
-    public void shouldCallSerializationListener() {
+    public void shouldSerialize() {
         String data = "test";
-        SerializationListener serializationListener = mock(SerializationListener.class);
-        base64Context.setListener(serializationListener);
-        base64Context.update(null, getDataMessageBytes(data));
-        final Message expectedMessage = getDataMessage(data);
-        verify(serializationListener).onMessage(argThat(new ArgumentMatcher<Message>() {
-            @Override
-            public boolean matches(Object argument) {
-                Message actualMessage = (Message) argument;
-                return expectedMessage.toString().equals(actualMessage.toString());
-            }
-        }));
+        byte[] actualMessage = base64Context.serialize(getDataMessage(data));
+        Assert.assertThat(getDataMessageBytes(data), IsEqual.equalTo(actualMessage));
     }
 
     @Test
     public void canProcessMissedDataIncomingMessage() {
-        SerializationListener serializationListener = mock(SerializationListener.class);
-        base64Context.setListener(serializationListener);
-        base64Context.update(null, getDataMessageBytes(null));
+        Message actualMessage = base64Context.deserialize(getDataMessageBytes(null));
         final Message expectedMessage = getDataMessage(null);
-        verify(serializationListener).onMessage(argThat(new ArgumentMatcher<Message>() {
-            @Override
-            public boolean matches(Object argument) {
-                Message actualMessage = (Message) argument;
-                return expectedMessage.toString().equals(actualMessage.toString());
-            }
-        }));
+        assertEquals(expectedMessage.toString(), actualMessage.toString());
     }
 
     @Test
     public void canProcessMissedDataOutgoingMessage() {
-        String data = null;
-        Message message = getDataMessage(data);
-        base64Context.sendMessage(networkEngineMock, message);
-        byte[] expectedBytes = getDataMessageBytes(data);
-
-        verify(networkEngineMock).sendMessageBroadcast(expectedBytes);
+        byte[] actualMessage = base64Context.serialize(getDataMessage(null));
+        byte[] expectedMessage = getDataMessageBytes(null);
+        Assert.assertThat(getDataMessageBytes(null), IsEqual.equalTo(actualMessage));
     }
 
 }

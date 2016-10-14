@@ -84,7 +84,7 @@ public class GroupUdpEndpointSession extends UdpEndpointSession {
     }
 
     @Override
-    public void onMessage(Message message) {
+    protected void onMessage(Message message) {
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;

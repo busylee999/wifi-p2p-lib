@@ -5,7 +5,6 @@ import android.util.Log;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
-import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.UserEndpoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +13,7 @@ import com.google.gson.GsonBuilder;
  * Created by busylee on 23.08.16.
  */
 
-public class UserUdpEndpointSession extends UdpEndpointSession implements SerializationListener {
+public class UserUdpEndpointSession extends UdpEndpointSession {
 
     private static final String TAG = "UdpEndpointSession";
 
@@ -35,7 +34,6 @@ public class UserUdpEndpointSession extends UdpEndpointSession implements Serial
                            int expiredBound) {
         super(endpoint, networkEngine, serializationContext);
         this.endpoint = endpoint;
-        this.networkEngine.addObserver(serializationContext);
         this.expiredBound = expiredBound;
         this.gson = new GsonBuilder().create();
         updateLastActionTime();
@@ -71,7 +69,7 @@ public class UserUdpEndpointSession extends UdpEndpointSession implements Serial
     }
 
     @Override
-    public void onMessage(Message message) {
+    protected void onMessage(Message message) {
         //TODO should be safe for null
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);

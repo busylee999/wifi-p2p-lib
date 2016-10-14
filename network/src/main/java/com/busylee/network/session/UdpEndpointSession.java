@@ -1,17 +1,18 @@
 package com.busylee.network.session;
 
-import com.busylee.network.Logger;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
-import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
+
+import java.util.Observable;
+import java.util.Observer;
 
 
 /**
  * Created by busylee on 04.08.16.
  */
-public abstract class UdpEndpointSession extends EndpointSession implements SerializationListener {
+public abstract class UdpEndpointSession extends EndpointSession implements Observer {
     static final int DEFAULT_EXPIRED_BOUND = 11 * 1000; //11 sec
     protected final NetworkEngine networkEngine;
     private final SerializationContext serializationContext;
@@ -22,9 +23,8 @@ public abstract class UdpEndpointSession extends EndpointSession implements Seri
     public UdpEndpointSession(Endpoint endpoint, NetworkEngine networkEngine, SerializationContext serializationContext) {
         this.endpoint = endpoint;
         this.networkEngine = networkEngine;
+        this.networkEngine.addObserver(this);
         this.serializationContext = serializationContext;
-        this.serializationContext.setListener(this);
-        this.networkEngine.addObserver(serializationContext);
         //TODO think about it
         state = EState.Established;
     }
@@ -43,7 +43,7 @@ public abstract class UdpEndpointSession extends EndpointSession implements Seri
 
     @Override
     public void sendMessage(Message message) {
-        serializationContext.sendMessage(networkEngine, message);
+        networkEngine.sendMessageBroadcast(serializationContext.serialize(message));
     }
 
     @Override
@@ -66,4 +66,12 @@ public abstract class UdpEndpointSession extends EndpointSession implements Seri
 
         return true;
     }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        Message message = serializationContext.deserialize(((byte[]) data));
+        onMessage(message);
+    }
+
+    protected abstract void onMessage(Message message);
 }

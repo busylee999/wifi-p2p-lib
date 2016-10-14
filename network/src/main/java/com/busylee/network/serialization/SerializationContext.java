@@ -7,7 +7,7 @@ import com.busylee.network.message.Message;
  * Created by busylee on 01.09.16.
  */
 
-public interface SerializationContext extends Network.NetworkListener {
-    void sendMessage(Network network, Message message);
-    void setListener(SerializationListener serializationListener);
+public interface SerializationContext {
+    byte[] serialize(Message message);
+    Message deserialize(byte[] bytes);
 }

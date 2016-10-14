@@ -16,7 +16,6 @@ import javax.inject.Inject;
 public class Base64Context implements SerializationContext {
 
     private final Gson gson;
-    private SerializationListener serializationListener;
 
     @Inject
     public Base64Context(Gson gson) {
@@ -24,27 +23,19 @@ public class Base64Context implements SerializationContext {
     }
 
     @Override
-    public void sendMessage(Network network, Message message) {
+    public byte[] serialize(Message message) {
         String messageData = message.getData();
         if(messageData != null) {
             message = Message.Builder.from(message)
                     .setData(Base64.encodeToString(messageData.getBytes(), Base64.DEFAULT))
                     .build();
         }
-        network.sendMessageBroadcast(message.toString().getBytes());
+        return message.toString().getBytes();
     }
 
     @Override
-    public void setListener(SerializationListener serializationListener) {
-        this.serializationListener = serializationListener;
-    }
-
-    @Override
-    public void update(Observable observable, Object data) {
-        if(serializationListener == null) {
-            return;
-        }
-        Message message = gson.fromJson(new String((byte[]) data), Message.class);
+    public Message deserialize(byte[] bytes) {
+        Message message = gson.fromJson(new String(bytes), Message.class);
         String messageData = message.getData();
         if(messageData != null) {
             byte[] decode = Base64.decode(messageData.getBytes(), Base64.DEFAULT);
@@ -52,7 +43,7 @@ public class Base64Context implements SerializationContext {
                     .setData(new String(decode))
                     .build();
         }
-        serializationListener.onMessage(message);
-    }
 
+        return message;
+    }
 }

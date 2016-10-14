@@ -5,7 +5,6 @@ import android.util.Log;
 import com.busylee.network.NetworkEngine;
 import com.busylee.network.message.Message;
 import com.busylee.network.serialization.SerializationContext;
-import com.busylee.network.serialization.SerializationListener;
 import com.busylee.network.session.endpoint.Endpoint;
 import com.busylee.network.session.endpoint.GroupEndpoint;
 import com.busylee.network.session.endpoint.UserEndpoint;
@@ -17,7 +16,7 @@ import static com.busylee.network.message.Message.Command.*;
 /**
  * Created by busylee on 03.08.16.
  */
-public class UdpBroadcastSession extends AbstractSession implements NetworkEngine.NetworkListener, SerializationListener {
+public class UdpBroadcastSession extends AbstractSession implements NetworkEngine.NetworkListener {
 
     private static final String TAG = "UdpBroadcastSession";
     private final SerializationContext serializationContext;
@@ -26,9 +25,8 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     UdpBroadcastSession(NetworkEngine networkEngine, SerializationContext serializationContext) {
         this.serializationContext = serializationContext;
-        this.serializationContext.setListener(this);
         this.networkEngine = networkEngine;
-        this.networkEngine.addObserver(serializationContext);
+        this.networkEngine.addObserver(this);
     }
 
     @Override
@@ -53,7 +51,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void sendMessage(Message message) {
-        serializationContext.sendMessage(networkEngine, message);
+        networkEngine.sendMessageBroadcast(serializationContext.serialize(message));
     }
 
     public void setEndpointListener(EndPointListener endPointListener) {
@@ -72,11 +70,7 @@ public class UdpBroadcastSession extends AbstractSession implements NetworkEngin
 
     @Override
     public void update(Observable observable, Object data) {
-        //TODO remove deprecated method
-    }
-
-    @Override
-    public void onMessage(Message message) {
+        Message message = serializationContext.deserialize(((byte[]) data));
         if(message.getCommand() == null) {
             Log.w(TAG, "missing command in message = " + message);
             return;
