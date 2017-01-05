@@ -1,6 +1,7 @@
 package com.busylee.network.udp;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -99,7 +100,8 @@ public class UdpEngineImpl implements UdpEngine {
     }
 
     private byte[] tryListenForString(DatagramSocket socket) throws IOException {
-        byte[] buf = new byte[1024];
+        //TODO: we reach bound in 1024 with messages we have
+        byte[] buf = new byte[10024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
         return Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
